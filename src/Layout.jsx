@@ -35,7 +35,7 @@ export default function Layout({ children, currentPageName }) {
       show: true,
     },
     {
-      title: "דיווח שעות",
+      title: "דיווח חדש",
       url: createPageUrl("TimeEntry"),
       icon: Plus,
       show: true,
@@ -56,9 +56,9 @@ export default function Layout({ children, currentPageName }) {
                 <Clock className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h2 className="font-bold text-xl text-slate-900">דיווח שעות</h2>
+                <h2 className="font-bold text-xl text-slate-900">מערכת שעות</h2>
                 <p className="text-sm text-slate-500">
-                  {isAdmin ? "מערכת ניהול" : "מערכת עובדים"}
+                  {isAdmin ? "ניהול ובקרה" : "דיווחי עובדים"}
                 </p>
               </div>
             </div>
@@ -72,7 +72,7 @@ export default function Layout({ children, currentPageName }) {
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton 
                         asChild 
-                        className={`hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 rounded-xl mb-2 h-14 ${
+                        className={`hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 rounded-xl mb-3 h-14 ${
                           location.pathname === item.url ? 'bg-blue-500 text-white hover:bg-blue-600 hover:text-white shadow-lg' : ''
                         }`}
                       >
@@ -123,7 +123,7 @@ export default function Layout({ children, currentPageName }) {
           <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 px-6 py-4 md:hidden shadow-sm">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200" />
-              <h1 className="text-xl font-bold text-slate-900">דיווח שעות</h1>
+              <h1 className="text-xl font-bold text-slate-900">מערכת שעות</h1>
             </div>
           </header>
 
