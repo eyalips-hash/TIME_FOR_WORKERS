@@ -1,25 +1,14 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Clock, BarChart3, Plus, LogOut } from "lucide-react";
+import { Clock, BarChart3, Plus, LogOut, Menu } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const [user, setUser] = React.useState(null);
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   React.useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -47,10 +36,17 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 to-blue-50" dir="rtl">
-        <Sidebar className="border-l border-slate-200">
-          <SidebarHeader className="border-b border-slate-200 p-6">
+    <div className="min-h-screen flex bg-gradient-to-br from-slate-50 to-blue-50" dir="rtl">
+      {/* Sidebar */}
+      <aside className={`
+        fixed top-0 right-0 h-full w-72 bg-white border-l border-slate-200 shadow-xl z-50
+        transform transition-transform duration-300 ease-in-out
+        md:translate-x-0 md:static
+        ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}
+      `}>
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="border-b border-slate-200 p-6">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <Clock className="w-7 h-7 text-white" />
@@ -62,33 +58,30 @@ export default function Layout({ children, currentPageName }) {
                 </p>
               </div>
             </div>
-          </SidebarHeader>
+          </div>
           
-          <SidebarContent className="p-3">
-            <SidebarGroup>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {navigationItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton 
-                        asChild 
-                        className={`hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 rounded-xl mb-3 h-14 ${
-                          location.pathname === item.url ? 'bg-blue-500 text-white hover:bg-blue-600 hover:text-white shadow-lg' : ''
-                        }`}
-                      >
-                        <Link to={item.url} className="flex items-center gap-4 px-4">
-                          <item.icon className="w-6 h-6" />
-                          <span className="font-semibold text-lg">{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
+          {/* Navigation */}
+          <nav className="flex-1 p-3 overflow-y-auto">
+            <div className="space-y-2">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.title}
+                  to={item.url}
+                  onClick={() => setSidebarOpen(false)}
+                  className={`flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 ${
+                    location.pathname === item.url 
+                      ? 'bg-blue-500 text-white shadow-lg' 
+                      : 'hover:bg-blue-50 hover:text-blue-700 text-slate-700'
+                  }`}
+                >
+                  <item.icon className="w-6 h-6" />
+                  <span className="font-semibold text-lg">{item.title}</span>
+                </Link>
+              ))}
+            </div>
 
             {user && (
-              <div className="mt-8 mx-2">
+              <div className="mt-8">
                 <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-4 border border-slate-200">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-500 rounded-full flex items-center justify-center shadow-md">
@@ -106,9 +99,10 @@ export default function Layout({ children, currentPageName }) {
                 </div>
               </div>
             )}
-          </SidebarContent>
+          </nav>
 
-          <SidebarFooter className="border-t border-slate-200 p-4">
+          {/* Footer */}
+          <div className="border-t border-slate-200 p-4">
             <button
               onClick={handleLogout}
               className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 w-full font-medium"
@@ -116,22 +110,39 @@ export default function Layout({ children, currentPageName }) {
               <LogOut className="w-5 h-5" />
               <span>התנתק</span>
             </button>
-          </SidebarFooter>
-        </Sidebar>
-
-        <main className="flex-1 flex flex-col">
-          <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 px-6 py-4 md:hidden shadow-sm">
-            <div className="flex items-center gap-4">
-              <SidebarTrigger className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200" />
-              <h1 className="text-xl font-bold text-slate-900">מערכת שעות</h1>
-            </div>
-          </header>
-
-          <div className="flex-1 overflow-auto">
-            {children}
           </div>
-        </main>
-      </div>
-    </SidebarProvider>
+        </div>
+      </aside>
+
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col min-w-0">
+        {/* Mobile Header */}
+        <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 px-6 py-4 md:hidden shadow-sm sticky top-0 z-30">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold text-slate-900">מערכת שעות</h1>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarOpen(true)}
+              className="hover:bg-slate-100"
+            >
+              <Menu className="w-6 h-6" />
+            </Button>
+          </div>
+        </header>
+
+        <div className="flex-1 overflow-auto">
+          {children}
+        </div>
+      </main>
+    </div>
   );
 }
