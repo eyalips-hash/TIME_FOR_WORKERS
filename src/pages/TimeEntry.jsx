@@ -1,29 +1,59 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import TimeEntryForm from "../components/timeentry/TimeEntryForm";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, AlertCircle } from "lucide-react";
 
 export default function TimeEntryPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = React.useState(false);
+  const [error, setError] = React.useState(null);
+  const [user, setUser] = React.useState(null);
+
+  React.useEffect(() => {
+    base44.auth.me().then(setUser);
+  }, []);
+
+  const { data: existingEntries } = useQuery({
+    queryKey: ['myTimeEntries', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return [];
+      return base44.entities.TimeEntry.filter({ created_by: user.email });
+    },
+    enabled: !!user?.email,
+    initialData: [],
+  });
 
   const createEntryMutation = useMutation({
     mutationFn: (data) => base44.entities.TimeEntry.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timeEntries'] });
+      queryClient.invalidateQueries({ queryKey: ['myTimeEntries'] });
       setShowSuccess(true);
+      setError(null);
       setTimeout(() => {
         setShowSuccess(false);
         navigate(createPageUrl("MyHours"));
       }, 2000);
     },
+    onError: (err) => {
+      setError("שגיאה בשמירת הדיווח");
+    }
   });
 
   const handleSubmit = (data) => {
+    // בדיקה שאין דיווח כפול לאותו יום
+    const dateExists = existingEntries?.some(entry => entry.date === data.date);
+    
+    if (dateExists) {
+      setError("כבר קיים דיווח לתאריך זה. לא ניתן לדווח יותר מפעם אחת ליום.");
+      return;
+    }
+
+    setError(null);
     createEntryMutation.mutate(data);
   };
 
@@ -47,17 +77,22 @@ export default function TimeEntryPage() {
           </div>
         )}
 
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-6 flex items-center gap-4">
+            <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
+              <AlertCircle className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <p className="text-lg font-bold text-red-900">שגיאה</p>
+              <p className="text-red-700">{error}</p>
+            </div>
+          </div>
+        )}
+
         <TimeEntryForm
           onSubmit={handleSubmit}
           isSubmitting={createEntryMutation.isPending}
         />
-
-        {createEntryMutation.isError && (
-          <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-4">
-            <p className="text-red-900 font-semibold">שגיאה בשמירת הדיווח</p>
-            <p className="text-red-700 text-sm mt-1">אנא נסה שוב</p>
-          </div>
-        )}
       </div>
     </div>
   );
