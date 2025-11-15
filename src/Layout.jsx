@@ -1,14 +1,13 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Clock, LayoutDashboard, Plus, LogOut } from "lucide-react";
+import { Clock, BarChart3, Plus, LogOut } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -30,22 +29,16 @@ export default function Layout({ children, currentPageName }) {
 
   const navigationItems = [
     {
-      title: "לוח בקרה",
-      url: createPageUrl("Dashboard"),
-      icon: LayoutDashboard,
-      show: isAdmin,
+      title: isAdmin ? "לוח בקרה" : "השעות שלי",
+      url: isAdmin ? createPageUrl("Dashboard") : createPageUrl("MyHours"),
+      icon: isAdmin ? BarChart3 : Clock,
+      show: true,
     },
     {
       title: "דיווח שעות",
       url: createPageUrl("TimeEntry"),
       icon: Plus,
       show: true,
-    },
-    {
-      title: "השעות שלי",
-      url: createPageUrl("MyHours"),
-      icon: Clock,
-      show: !isAdmin,
     },
   ].filter(item => item.show);
 
@@ -63,30 +56,29 @@ export default function Layout({ children, currentPageName }) {
                 <Clock className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h2 className="font-bold text-xl text-slate-900">ניהול שעות</h2>
-                <p className="text-sm text-slate-500">מערכת דיווח שעות</p>
+                <h2 className="font-bold text-xl text-slate-900">דיווח שעות</h2>
+                <p className="text-sm text-slate-500">
+                  {isAdmin ? "מערכת ניהול" : "מערכת עובדים"}
+                </p>
               </div>
             </div>
           </SidebarHeader>
           
           <SidebarContent className="p-3">
             <SidebarGroup>
-              <SidebarGroupLabel className="text-sm font-semibold text-slate-500 px-4 py-3">
-                תפריט ראשי
-              </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {navigationItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton 
                         asChild 
-                        className={`hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 rounded-xl mb-2 ${
-                          location.pathname === item.url ? 'bg-blue-100 text-blue-700 shadow-sm' : ''
+                        className={`hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 rounded-xl mb-2 h-14 ${
+                          location.pathname === item.url ? 'bg-blue-500 text-white hover:bg-blue-600 hover:text-white shadow-lg' : ''
                         }`}
                       >
-                        <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
-                          <item.icon className="w-5 h-5" />
-                          <span className="font-medium text-base">{item.title}</span>
+                        <Link to={item.url} className="flex items-center gap-4 px-4">
+                          <item.icon className="w-6 h-6" />
+                          <span className="font-semibold text-lg">{item.title}</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -96,36 +88,33 @@ export default function Layout({ children, currentPageName }) {
             </SidebarGroup>
 
             {user && (
-              <SidebarGroup className="mt-4">
-                <SidebarGroupLabel className="text-sm font-semibold text-slate-500 px-4 py-3">
-                  פרטי משתמש
-                </SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <div className="px-4 py-3 bg-slate-50 rounded-xl mx-2">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">
-                          {user.full_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-slate-900 text-sm">{user.full_name || 'משתמש'}</p>
-                        <p className="text-xs text-slate-500">{user.role === 'admin' ? 'מנהל' : 'עובד'}</p>
-                      </div>
+              <div className="mt-8 mx-2">
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-4 border border-slate-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-500 rounded-full flex items-center justify-center shadow-md">
+                      <span className="text-white font-bold text-lg">
+                        {user.full_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-900">{user.full_name || 'משתמש'}</p>
+                      <p className="text-sm text-slate-500">
+                        {user.role === 'admin' ? '👔 מנהל' : '👤 עובד'}
+                      </p>
                     </div>
                   </div>
-                </SidebarGroupContent>
-              </SidebarGroup>
+                </div>
+              </div>
             )}
           </SidebarContent>
 
           <SidebarFooter className="border-t border-slate-200 p-4">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 w-full"
+              className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 w-full font-medium"
             >
               <LogOut className="w-5 h-5" />
-              <span className="font-medium">התנתק</span>
+              <span>התנתק</span>
             </button>
           </SidebarFooter>
         </Sidebar>
@@ -134,7 +123,7 @@ export default function Layout({ children, currentPageName }) {
           <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 px-6 py-4 md:hidden shadow-sm">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200" />
-              <h1 className="text-xl font-bold text-slate-900">ניהול שעות</h1>
+              <h1 className="text-xl font-bold text-slate-900">דיווח שעות</h1>
             </div>
           </header>
 
