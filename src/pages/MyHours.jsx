@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Plus, Calendar, Clock } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TimeEntryList from "../components/timeentry/TimeEntryList";
+import MonthlyHoursTable from "../components/dashboard/MonthlyHoursTable";
 import StatsCard from "../components/dashboard/StatsCard";
 
 export default function MyHoursPage() {
@@ -49,7 +51,7 @@ export default function MyHoursPage() {
 
   return (
     <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
             <h1 className="text-4xl font-bold text-slate-900 mb-2">השעות שלי</h1>
@@ -85,10 +87,27 @@ export default function MyHoursPage() {
           />
         </div>
 
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-6">היסטוריית דיווחים</h2>
-          <TimeEntryList entries={entries} isLoading={isLoading} />
-        </div>
+        <Tabs defaultValue="monthly" className="space-y-6">
+          <TabsList className="bg-white shadow-md border border-slate-200 p-1">
+            <TabsTrigger value="monthly" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white px-6 py-2">
+              תצוגה חודשית
+            </TabsTrigger>
+            <TabsTrigger value="list" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white px-6 py-2">
+              רשימת דיווחים
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="monthly">
+            <MonthlyHoursTable entries={entries} />
+          </TabsContent>
+
+          <TabsContent value="list">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900 mb-6">היסטוריית דיווחים</h2>
+              <TimeEntryList entries={entries} isLoading={isLoading} />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

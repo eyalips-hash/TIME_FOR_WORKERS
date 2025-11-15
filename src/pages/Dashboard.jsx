@@ -2,8 +2,10 @@ import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Users, Clock, CheckCircle, Calendar } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StatsCard from "../components/dashboard/StatsCard";
 import EmployeeHoursTable from "../components/dashboard/EmployeeHoursTable";
+import MonthlyHoursTable from "../components/dashboard/MonthlyHoursTable";
 
 export default function DashboardPage() {
   const queryClient = useQueryClient();
@@ -87,12 +89,27 @@ export default function DashboardPage() {
           />
         </div>
 
-        <div>
-          <EmployeeHoursTable
-            entries={allEntries}
-            onUpdateStatus={handleUpdateStatus}
-          />
-        </div>
+        <Tabs defaultValue="monthly" className="space-y-6">
+          <TabsList className="bg-white shadow-md border border-slate-200 p-1">
+            <TabsTrigger value="monthly" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white px-6 py-2">
+              תצוגה חודשית
+            </TabsTrigger>
+            <TabsTrigger value="approvals" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white px-6 py-2">
+              אישור דיווחים
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="monthly">
+            <MonthlyHoursTable entries={allEntries} />
+          </TabsContent>
+
+          <TabsContent value="approvals">
+            <EmployeeHoursTable
+              entries={allEntries}
+              onUpdateStatus={handleUpdateStatus}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
