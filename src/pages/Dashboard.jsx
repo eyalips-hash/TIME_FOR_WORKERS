@@ -3,12 +3,25 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Users, Clock, CheckCircle, Calendar } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import StatsCard from "../components/dashboard/StatsCard";
 import EmployeeHoursTable from "../components/dashboard/EmployeeHoursTable";
 import MonthlyHoursTable from "../components/dashboard/MonthlyHoursTable";
+import TimeEntryForm from "../components/timeentry/TimeEntryForm";
 
 export default function DashboardPage() {
   const queryClient = useQueryClient();
+  const [deleteId, setDeleteId] = React.useState(null);
+  const [editingEntry, setEditingEntry] = React.useState(null);
 
   const { data: allEntries, isLoading } = useQuery({
     queryKey: ['allTimeEntries'],
@@ -23,8 +36,44 @@ export default function DashboardPage() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.TimeEntry.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allTimeEntries'] });
+      setDeleteId(null);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.TimeEntry.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allTimeEntries'] });
+      setEditingEntry(null);
+    },
+  });
+
   const handleUpdateStatus = (id, status) => {
     updateStatusMutation.mutate({ id, status });
+  };
+
+  const handleDelete = (id) => {
+    setDeleteId(id);
+  };
+
+  const confirmDelete = () => {
+    if (deleteId) {
+      deleteMutation.mutate(deleteId);
+    }
+  };
+
+  const handleEdit = (entry) => {
+    setEditingEntry(entry);
+  };
+
+  const handleUpdate = (data) => {
+    if (editingEntry) {
+      updateMutation.mutate({ id: editingEntry.id, data });
+    }
   };
 
   const stats = React.useMemo(() => {
@@ -89,6 +138,21 @@ export default function DashboardPage() {
           />
         </div>
 
+        {editingEntry && (
+          <div className="mb-8">
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+              <p className="text-blue-900 font-semibold">עריכת דיווח</p>
+              <p className="text-blue-700 text-sm">תוכל לערוך את כל פרטי הדיווח</p>
+            </div>
+            <TimeEntryForm
+              entry={editingEntry}
+              onSubmit={handleUpdate}
+              onCancel={() => setEditingEntry(null)}
+              isSubmitting={updateMutation.isPending}
+            />
+          </div>
+        )}
+
         <Tabs defaultValue="monthly" className="space-y-6">
           <TabsList className="bg-white shadow-md border border-slate-200 p-1">
             <TabsTrigger value="monthly" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white px-6 py-2">
@@ -107,9 +171,31 @@ export default function DashboardPage() {
             <EmployeeHoursTable
               entries={allEntries}
               onUpdateStatus={handleUpdateStatus}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
             />
           </TabsContent>
         </Tabs>
+
+        <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>האם למחוק את הדיווח?</AlertDialogTitle>
+              <AlertDialogDescription>
+                פעולה זו אינה ניתנת לביטול. הדיווח יימחק לצמיתות.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>ביטול</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={confirmDelete}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                מחק
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

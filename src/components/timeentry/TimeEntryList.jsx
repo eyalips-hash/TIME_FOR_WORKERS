@@ -1,9 +1,10 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
-import { Clock, Calendar, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Clock, Calendar, CheckCircle, XCircle, AlertCircle, Pencil, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const statusConfig = {
@@ -24,7 +25,7 @@ const statusConfig = {
   },
 };
 
-export default function TimeEntryList({ entries, isLoading }) {
+export default function TimeEntryList({ entries, isLoading, onEdit, onDelete }) {
   if (isLoading) {
     return (
       <Card className="shadow-lg border-0">
@@ -56,6 +57,8 @@ export default function TimeEntryList({ entries, isLoading }) {
     <div className="space-y-4">
       {entries.map((entry) => {
         const StatusIcon = statusConfig[entry.status]?.icon || AlertCircle;
+        const canEdit = entry.status === "pending";
+        
         return (
           <Card key={entry.id} className="shadow-md border-0 bg-white/90 backdrop-blur hover:shadow-xl transition-all duration-300">
             <CardContent className="p-6">
@@ -73,10 +76,36 @@ export default function TimeEntryList({ entries, isLoading }) {
                     </p>
                   </div>
                 </div>
-                <Badge className={`${statusConfig[entry.status]?.color} border font-semibold px-3 py-1 flex items-center gap-2`}>
-                  <StatusIcon className="w-4 h-4" />
-                  {statusConfig[entry.status]?.label}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge className={`${statusConfig[entry.status]?.color} border font-semibold px-3 py-1 flex items-center gap-2`}>
+                    <StatusIcon className="w-4 h-4" />
+                    {statusConfig[entry.status]?.label}
+                  </Badge>
+                  {canEdit && (
+                    <div className="flex gap-2">
+                      {onEdit && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onEdit(entry)}
+                          className="hover:bg-blue-50"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                      )}
+                      {onDelete && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onDelete(entry.id)}
+                          className="hover:bg-red-50 text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">

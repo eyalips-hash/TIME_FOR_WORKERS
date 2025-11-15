@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle, Clock } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 
@@ -13,7 +13,7 @@ const statusConfig = {
   rejected: { label: "נדחה", color: "bg-red-100 text-red-800" },
 };
 
-export default function EmployeeHoursTable({ entries, onUpdateStatus }) {
+export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, onDelete }) {
   if (!entries || entries.length === 0) {
     return (
       <Card className="shadow-lg border-0">
@@ -61,32 +61,49 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus }) {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {entry.status === "pending" && (
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => onUpdateStatus(entry.id, "approved")}
-                          className="bg-green-500 hover:bg-green-600"
-                        >
-                          <CheckCircle className="w-4 h-4 ml-1" />
-                          אשר
-                        </Button>
+                    <div className="flex gap-2">
+                      {entry.status === "pending" && (
+                        <>
+                          <Button
+                            size="sm"
+                            onClick={() => onUpdateStatus(entry.id, "approved")}
+                            className="bg-green-500 hover:bg-green-600"
+                          >
+                            <CheckCircle className="w-4 h-4 ml-1" />
+                            אשר
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => onUpdateStatus(entry.id, "rejected")}
+                            className="text-red-600 hover:bg-red-50"
+                          >
+                            <XCircle className="w-4 h-4 ml-1" />
+                            דחה
+                          </Button>
+                        </>
+                      )}
+                      {onEdit && (
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => onUpdateStatus(entry.id, "rejected")}
-                          className="text-red-600 hover:bg-red-50"
+                          onClick={() => onEdit(entry)}
+                          className="hover:bg-blue-50"
                         >
-                          <XCircle className="w-4 h-4 ml-1" />
-                          דחה
+                          <Pencil className="w-4 h-4" />
                         </Button>
-                      </div>
-                    )}
-                    {entry.status !== "pending" && (
-                      <span className="text-sm text-slate-500">
-                        {entry.status === "approved" ? "אושר" : "נדחה"}
-                      </span>
-                    )}
+                      )}
+                      {onDelete && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onDelete(entry.id)}
+                          className="hover:bg-red-50 text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

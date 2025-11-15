@@ -1,143 +1,131 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Clock, Calendar, Coffee } from "lucide-react";
-import { format } from "date-fns";
+import { Clock } from "lucide-react";
 
-export default function TimeEntryForm({ onSubmit, isSubmitting }) {
-  const [formData, setFormData] = useState({
-    date: format(new Date(), "yyyy-MM-dd"),
-    start_time: "",
-    end_time: "",
-    break_minutes: 0,
-    notes: "",
+export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting }) {
+  const [formData, setFormData] = React.useState({
+    date: entry?.date || new Date().toISOString().split('T')[0],
+    start_time: entry?.start_time || "09:00",
+    end_time: entry?.end_time || "17:00",
+    break_minutes: entry?.break_minutes || 0,
+    notes: entry?.notes || "",
   });
 
   const calculateHours = () => {
-    if (!formData.start_time || !formData.end_time) return 0;
+    const [startHour, startMin] = formData.start_time.split(':').map(Number);
+    const [endHour, endMin] = formData.end_time.split(':').map(Number);
     
-    const start = new Date(`2000-01-01T${formData.start_time}`);
-    const end = new Date(`2000-01-01T${formData.end_time}`);
-    const diffMs = end - start;
-    const diffHours = diffMs / (1000 * 60 * 60);
-    const breakHours = (formData.break_minutes || 0) / 60;
+    const startMinutes = startHour * 60 + startMin;
+    const endMinutes = endHour * 60 + endMin;
+    const workMinutes = endMinutes - startMinutes - (formData.break_minutes || 0);
     
-    return Math.max(0, diffHours - breakHours);
+    return (workMinutes / 60).toFixed(2);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const totalHours = calculateHours();
+    const totalHours = parseFloat(calculateHours());
     onSubmit({ ...formData, total_hours: totalHours });
   };
 
   return (
-    <Card className="shadow-lg border-0 bg-white/90 backdrop-blur">
-      <CardHeader className="border-b border-slate-100 pb-6">
-        <CardTitle className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-            <Clock className="w-6 h-6 text-blue-600" />
-          </div>
-          דיווח שעות עבודה
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="pt-6">
+    <Card className="shadow-xl border-0 bg-white/90 backdrop-blur">
+      <CardContent className="p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="date" className="text-base font-semibold text-slate-700 flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                תאריך
-              </Label>
+            <div>
+              <Label className="text-slate-700 font-semibold mb-2 block">תאריך</Label>
               <Input
-                id="date"
                 type="date"
                 value={formData.date}
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                onChange={(e) => setFormData({...formData, date: e.target.value})}
                 required
-                className="text-lg h-12"
+                className="h-12 text-base"
               />
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="break_minutes" className="text-base font-semibold text-slate-700 flex items-center gap-2">
-                <Coffee className="w-4 h-4" />
-                הפסקה (דקות)
-              </Label>
+            <div>
+              <Label className="text-slate-700 font-semibold mb-2 block">הפסקה (דקות)</Label>
               <Input
-                id="break_minutes"
                 type="number"
-                min="0"
                 value={formData.break_minutes}
-                onChange={(e) => setFormData({ ...formData, break_minutes: parseInt(e.target.value) || 0 })}
-                className="text-lg h-12"
+                onChange={(e) => setFormData({...formData, break_minutes: Number(e.target.value)})}
+                min="0"
+                className="h-12 text-base"
               />
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="start_time" className="text-base font-semibold text-slate-700">
-                שעת התחלה
-              </Label>
+            <div>
+              <Label className="text-slate-700 font-semibold mb-2 block">שעת התחלה</Label>
               <Input
-                id="start_time"
                 type="time"
                 value={formData.start_time}
-                onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+                onChange={(e) => setFormData({...formData, start_time: e.target.value})}
                 required
-                className="text-lg h-12"
+                className="h-12 text-base"
               />
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="end_time" className="text-base font-semibold text-slate-700">
-                שעת סיום
-              </Label>
+            <div>
+              <Label className="text-slate-700 font-semibold mb-2 block">שעת סיום</Label>
               <Input
-                id="end_time"
                 type="time"
                 value={formData.end_time}
-                onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                onChange={(e) => setFormData({...formData, end_time: e.target.value})}
                 required
-                className="text-lg h-12"
+                className="h-12 text-base"
               />
             </div>
           </div>
 
-          {formData.start_time && formData.end_time && (
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-              <p className="text-center text-lg">
-                <span className="text-slate-600 font-medium">סה״כ שעות עבודה: </span>
-                <span className="text-2xl font-bold text-blue-600">{calculateHours().toFixed(2)}</span>
-                <span className="text-slate-600 font-medium"> שעות</span>
-              </p>
+          <div className="bg-blue-50 rounded-xl p-6 border-r-4 border-blue-500">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm text-blue-600 font-medium">סה״כ שעות עבודה</p>
+                  <p className="text-slate-500 text-xs mt-1">לאחר הפחתת הפסקה</p>
+                </div>
+              </div>
+              <p className="text-4xl font-bold text-blue-900">{calculateHours()}</p>
             </div>
-          )}
+          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="notes" className="text-base font-semibold text-slate-700">
-              הערות
-            </Label>
+          <div>
+            <Label className="text-slate-700 font-semibold mb-2 block">הערות</Label>
             <Textarea
-              id="notes"
               value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="הערות נוספות (אופציונלי)"
-              className="h-24 text-base"
+              onChange={(e) => setFormData({...formData, notes: e.target.value})}
+              placeholder="הוסף הערות או פרטים נוספים..."
+              className="h-24 text-base resize-none"
             />
           </div>
 
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all duration-200"
-          >
-            {isSubmitting ? "שומר..." : "שמור דיווח"}
-          </Button>
+          <div className="flex gap-4 pt-4">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 h-12 text-base font-semibold shadow-lg"
+            >
+              {isSubmitting ? "שומר..." : (entry ? "עדכן דיווח" : "שמור דיווח")}
+            </Button>
+            {onCancel && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                className="h-12 px-8"
+              >
+                ביטול
+              </Button>
+            )}
+          </div>
         </form>
       </CardContent>
     </Card>
