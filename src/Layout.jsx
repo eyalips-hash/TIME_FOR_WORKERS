@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Clock, BarChart3, Plus, LogOut, Menu } from "lucide-react";
+import { Clock, BarChart3, Plus, LogOut, Menu, Users } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 
@@ -28,6 +28,12 @@ export default function Layout({ children, currentPageName }) {
       url: createPageUrl("TimeEntry"),
       icon: Plus,
       show: true,
+    },
+    {
+      title: "ניהול עובדים",
+      url: createPageUrl("ManageUsers"),
+      icon: Users,
+      show: isAdmin,
     },
   ].filter(item => item.show);
 
