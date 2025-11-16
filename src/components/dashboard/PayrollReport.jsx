@@ -3,9 +3,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
-import { Printer, Download } from "lucide-react";
+import { Printer } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 
 export default function PayrollReport({ employee, entries, month, year, hourlyRate = 50 }) {
+  const { data: users } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+    initialData: [],
+  });
+
+  const employeeName = React.useMemo(() => {
+    const user = users?.find(u => u.email === employee);
+    return user?.full_name || employee;
+  }, [users, employee]);
+
   const filteredEntries = entries.filter(entry => {
     const entryDate = new Date(entry.date);
     return entryDate.getMonth() === month && entryDate.getFullYear() === year && entry.status === "approved";
@@ -41,7 +54,7 @@ export default function PayrollReport({ employee, entries, month, year, hourlyRa
           <div className="grid grid-cols-2 gap-6 mb-8 bg-slate-50 p-6 rounded-xl">
             <div>
               <p className="text-sm text-slate-500 mb-1">שם עובד</p>
-              <p className="text-xl font-bold text-slate-900">{employee}</p>
+              <p className="text-xl font-bold text-slate-900">{employeeName}</p>
             </div>
             <div>
               <p className="text-sm text-slate-500 mb-1">תאריך הפקה</p>

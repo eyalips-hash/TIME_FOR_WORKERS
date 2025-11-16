@@ -6,6 +6,8 @@ import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { Clock, Calendar, CheckCircle, XCircle, AlertCircle, Pencil, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 
 const statusConfig = {
   pending: {
@@ -26,6 +28,20 @@ const statusConfig = {
 };
 
 export default function TimeEntryList({ entries, isLoading, onEdit, onDelete }) {
+  const { data: users } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+    initialData: [],
+  });
+
+  const usersByEmail = React.useMemo(() => {
+    const map = {};
+    users?.forEach(user => {
+      map[user.email] = user.full_name || user.email;
+    });
+    return map;
+  }, [users]);
+
   if (isLoading) {
     return (
       <Card className="shadow-lg border-0">
@@ -72,7 +88,7 @@ export default function TimeEntryList({ entries, isLoading, onEdit, onDelete }) 
                       {format(new Date(entry.date), "d בMMMM yyyy", { locale: he })}
                     </p>
                     <p className="text-sm text-slate-500">
-                      {format(new Date(entry.created_date), "HH:mm", { locale: he })} • דווח על ידי {entry.created_by}
+                      {format(new Date(entry.created_date), "HH:mm", { locale: he })} • דווח על ידי {usersByEmail[entry.created_by] || entry.created_by}
                     </p>
                   </div>
                 </div>

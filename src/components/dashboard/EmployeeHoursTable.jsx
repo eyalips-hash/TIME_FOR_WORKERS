@@ -6,8 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Clock, Pencil, Trash2, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
-import { useNavigate } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
+import MonthYearSelector from "./MonthYearSelector";
 
 const statusConfig = {
   pending: { label: "ממתין", color: "bg-yellow-100 text-yellow-800" },
@@ -16,14 +17,28 @@ const statusConfig = {
 };
 
 export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, onDelete }) {
-  const navigate = useNavigate();
+  const [selectedEmployee, setSelectedEmployee] = React.useState(null);
+  const [showMonthSelector, setShowMonthSelector] = React.useState(false);
+
+  const { data: users } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+    initialData: [],
+  });
+
+  const usersByEmail = React.useMemo(() => {
+    const map = {};
+    users?.forEach(user => {
+      map[user.email] = user.full_name || user.email;
+    });
+    return map;
+  }, [users]);
   
   const employees = [...new Set(entries.map(e => e.created_by))];
 
-  const handleGenerateReport = (employee) => {
-    const now = new Date();
-    const url = `${createPageUrl("PayrollReportPage")}?employee=${encodeURIComponent(employee)}&month=${now.getMonth()}&year=${now.getFullYear()}`;
-    navigate(url);
+  const handleGenerateReportClick = (employee) => {
+    setSelectedEmployee(employee);
+    setShowMonthSelector(true);
   };
 
   if (!entries || entries.length === 0) {
@@ -39,20 +54,30 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
 
   return (
     <div className="space-y-6">
+      {showMonthSelector && (
+        <MonthYearSelector
+          employee={selectedEmployee}
+          onClose={() => {
+            setShowMonthSelector(false);
+            setSelectedEmployee(null);
+          }}
+        />
+      )}
+
       {/* Quick Actions */}
       <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
         <CardContent className="p-6">
-          <h3 className="text-lg font-bold text-slate-900 mb-4">יצירת דוחות חודשיים</h3>
+          <h3 className="text-lg font-bold text-slate-900 mb-4">הפקת דוחות שכר</h3>
           <div className="flex flex-wrap gap-3">
             {employees.map((employee) => (
               <Button
                 key={employee}
-                onClick={() => handleGenerateReport(employee)}
+                onClick={() => handleGenerateReportClick(employee)}
                 variant="outline"
                 className="bg-white hover:bg-blue-50"
               >
                 <FileText className="w-4 h-4 ml-2" />
-                דוח ל-{employee}
+                דוח ל-{usersByEmail[employee] || employee}
               </Button>
             ))}
           </div>
@@ -82,7 +107,7 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
                     <TableCell className="font-semibold">
                       {format(new Date(entry.date), "d בMMMM yyyy", { locale: he })}
                     </TableCell>
-                    <TableCell>{entry.created_by}</TableCell>
+                    <TableCell>{usersByEmail[entry.created_by] || entry.created_by}</TableCell>
                     <TableCell>
                       <div className="text-sm">
                         <p className="font-medium">{entry.start_time} - {entry.end_time}</p>
