@@ -19,10 +19,12 @@ export default function PayrollReport({ employee, entries, month, year }) {
     return user?.full_name || employee;
   }, [users, employee]);
 
-  const filteredEntries = entries.filter(entry => {
-    const entryDate = new Date(entry.date);
-    return entryDate.getMonth() === month && entryDate.getFullYear() === year && entry.status === "approved";
-  });
+  const filteredEntries = entries
+    .filter(entry => {
+      const entryDate = new Date(entry.date);
+      return entryDate.getMonth() === month && entryDate.getFullYear() === year && entry.status === "approved";
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
 
   const totalHours = filteredEntries.reduce((sum, e) => sum + (e.total_hours || 0), 0);
 
