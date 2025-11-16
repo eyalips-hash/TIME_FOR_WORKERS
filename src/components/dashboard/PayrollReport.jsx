@@ -42,7 +42,7 @@ export default function PayrollReport({ employee, entries, month, year }) {
       <Card className="shadow-xl print:shadow-none">
         <CardContent className="p-6 print:p-4">
           {/* Header */}
-          <div className="border-b-2 border-blue-600 pb-3 mb-4">
+          <div className="border-b-2 border-blue-600 pb-2 mb-3">
             <h1 className="text-xl font-bold text-slate-900 mb-1">דוח שעות עבודה</h1>
             <p className="text-lg text-blue-700 font-semibold">
               חודש {format(new Date(year, month), "MMMM yyyy", { locale: he })}
@@ -50,42 +50,42 @@ export default function PayrollReport({ employee, entries, month, year }) {
           </div>
 
           {/* Employee Info */}
-          <div className="grid grid-cols-2 gap-4 mb-4 bg-slate-50 p-3 rounded-lg">
+          <div className="grid grid-cols-2 gap-3 mb-3 bg-slate-50 p-2 rounded-lg">
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">שם עובד</p>
-              <p className="text-base font-bold text-slate-900">{employeeName}</p>
+              <p className="text-xs text-slate-500">שם עובד</p>
+              <p className="text-sm font-bold text-slate-900">{employeeName}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">תאריך הפקה</p>
-              <p className="text-base font-bold text-slate-900">
+              <p className="text-xs text-slate-500">תאריך הפקה</p>
+              <p className="text-sm font-bold text-slate-900">
                 {format(new Date(), "d בMMMM yyyy", { locale: he })}
               </p>
             </div>
           </div>
 
           {/* Hours Table */}
-          <div className="mb-4">
-            <h2 className="text-base font-bold text-slate-900 mb-2">פירוט שעות</h2>
-            <table className="w-full border-collapse text-sm">
+          <div className="mb-3">
+            <h2 className="text-sm font-bold text-slate-900 mb-1.5">פירוט שעות</h2>
+            <table className="w-full border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-100">
-                  <th className="text-right p-2 font-bold border border-slate-300">תאריך</th>
-                  <th className="text-right p-2 font-bold border border-slate-300">כניסה</th>
-                  <th className="text-right p-2 font-bold border border-slate-300">יציאה</th>
-                  <th className="text-right p-2 font-bold border border-slate-300">הפסקה</th>
-                  <th className="text-right p-2 font-bold border border-slate-300">סה״כ שעות</th>
+                  <th className="text-right p-1.5 font-bold border border-slate-300">תאריך</th>
+                  <th className="text-right p-1.5 font-bold border border-slate-300">כניסה</th>
+                  <th className="text-right p-1.5 font-bold border border-slate-300">יציאה</th>
+                  <th className="text-right p-1.5 font-bold border border-slate-300">הפסקה</th>
+                  <th className="text-right p-1.5 font-bold border border-slate-300">סה״כ שעות</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredEntries.map((entry) => (
                   <tr key={entry.id}>
-                    <td className="p-2 border border-slate-300">
+                    <td className="p-1.5 border border-slate-300">
                       {format(new Date(entry.date), "d בMMMM", { locale: he })}
                     </td>
-                    <td className="p-2 border border-slate-300">{entry.start_time}</td>
-                    <td className="p-2 border border-slate-300">{entry.end_time}</td>
-                    <td className="p-2 border border-slate-300">{entry.break_minutes} דק׳</td>
-                    <td className="p-2 border border-slate-300 font-bold">
+                    <td className="p-1.5 border border-slate-300">{entry.start_time}</td>
+                    <td className="p-1.5 border border-slate-300">{entry.end_time}</td>
+                    <td className="p-1.5 border border-slate-300">{entry.break_minutes} דק׳</td>
+                    <td className="p-1.5 border border-slate-300 font-bold">
                       {entry.total_hours?.toFixed(2)}
                     </td>
                   </tr>
@@ -95,17 +95,17 @@ export default function PayrollReport({ employee, entries, month, year }) {
           </div>
 
           {/* Summary */}
-          <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
             <div className="text-center">
-              <p className="text-sm text-blue-600 mb-1">
+              <p className="text-xs text-blue-600 mb-0.5">
                 סה״כ שעות מאושרות לחודש {format(new Date(year, month), "MMMM yyyy", { locale: he })}
               </p>
-              <p className="text-3xl font-bold text-blue-900">{totalHours.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-blue-900">{totalHours.toFixed(2)}</p>
             </div>
           </div>
 
           {/* Footer */}
-          <div className="mt-6 pt-3 border-t text-center text-slate-500 text-xs">
+          <div className="mt-4 pt-2 border-t text-center text-slate-500 text-xs">
             <p>דוח הופק במערכת הפקת הדוחות של IPS</p>
             <p className="mt-0.5">{format(new Date(), "d/M/yyyy HH:mm", { locale: he })}</p>
           </div>

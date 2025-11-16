@@ -102,19 +102,24 @@ export default function DashboardPage() {
   };
 
   const stats = React.useMemo(() => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
     const thisWeekHours = filteredEntries
       .filter(e => {
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
-        return new Date(e.date) >= weekAgo;
+        return new Date(e.date) >= weekAgo && e.status === "approved";
       })
       .reduce((sum, e) => sum + (e.total_hours || 0), 0);
 
     const thisMonthHours = filteredEntries
       .filter(e => {
-        const monthAgo = new Date();
-        monthAgo.setMonth(monthAgo.getMonth() - 1);
-        return new Date(e.date) >= monthAgo;
+        const entryDate = new Date(e.date);
+        return entryDate.getMonth() === currentMonth && 
+               entryDate.getFullYear() === currentYear && 
+               e.status === "approved";
       })
       .reduce((sum, e) => sum + (e.total_hours || 0), 0);
 
@@ -155,14 +160,14 @@ export default function DashboardPage() {
           <StatsCard
             title="השבוע"
             value={`${stats.thisWeekHours.toFixed(1)}`}
-            subtitle="שעות"
+            subtitle="שעות מאושרות"
             icon={Calendar}
             bgColor="bg-blue-500"
           />
           <StatsCard
             title="החודש"
             value={`${stats.thisMonthHours.toFixed(1)}`}
-            subtitle="שעות"
+            subtitle="שעות מאושרות"
             icon={Clock}
             bgColor="bg-purple-500"
           />
