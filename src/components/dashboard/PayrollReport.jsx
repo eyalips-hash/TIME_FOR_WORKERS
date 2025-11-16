@@ -7,7 +7,7 @@ import { Printer } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 
-export default function PayrollReport({ employee, entries, month, year, hourlyRate = 50 }) {
+export default function PayrollReport({ employee, entries, month, year }) {
   const { data: users } = useQuery({
     queryKey: ['users'],
     queryFn: () => base44.entities.User.list(),
@@ -25,7 +25,6 @@ export default function PayrollReport({ employee, entries, month, year, hourlyRa
   });
 
   const totalHours = filteredEntries.reduce((sum, e) => sum + (e.total_hours || 0), 0);
-  const totalPay = totalHours * hourlyRate;
 
   const handlePrint = () => {
     window.print();
@@ -97,19 +96,9 @@ export default function PayrollReport({ employee, entries, month, year, hourlyRa
 
           {/* Summary */}
           <div className="bg-blue-50 rounded-xl p-6 border-2 border-blue-200">
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <p className="text-sm text-blue-600 mb-1">סה״כ שעות מאושרות</p>
-                <p className="text-3xl font-bold text-blue-900">{totalHours.toFixed(2)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-blue-600 mb-1">תעריף לשעה</p>
-                <p className="text-3xl font-bold text-blue-900">₪{hourlyRate}</p>
-              </div>
-            </div>
-            <div className="mt-6 pt-6 border-t-2 border-blue-300">
-              <p className="text-lg text-blue-600 mb-1">סה״כ לתשלום</p>
-              <p className="text-5xl font-bold text-blue-900">₪{totalPay.toFixed(2)}</p>
+            <div className="text-center">
+              <p className="text-lg text-blue-600 mb-2">סה״כ שעות מאושרות</p>
+              <p className="text-5xl font-bold text-blue-900">{totalHours.toFixed(2)}</p>
             </div>
           </div>
 
