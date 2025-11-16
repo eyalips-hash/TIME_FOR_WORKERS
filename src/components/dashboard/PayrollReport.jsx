@@ -44,8 +44,8 @@ export default function PayrollReport({ employee, entries, month, year }) {
           {/* Header */}
           <div className="border-b-4 border-blue-600 pb-6 mb-8">
             <h1 className="text-3xl font-bold text-slate-900 mb-2">דוח שעות עבודה</h1>
-            <p className="text-lg text-slate-600">
-              {format(new Date(year, month), "MMMM yyyy", { locale: he })}
+            <p className="text-2xl text-blue-700 font-semibold">
+              חודש {format(new Date(year, month), "MMMM yyyy", { locale: he })}
             </p>
           </div>
 
@@ -97,7 +97,9 @@ export default function PayrollReport({ employee, entries, month, year }) {
           {/* Summary */}
           <div className="bg-blue-50 rounded-xl p-6 border-2 border-blue-200">
             <div className="text-center">
-              <p className="text-lg text-blue-600 mb-2">סה״כ שעות מאושרות</p>
+              <p className="text-lg text-blue-600 mb-2">
+                סה״כ שעות מאושרות לחודש {format(new Date(year, month), "MMMM yyyy", { locale: he })}
+              </p>
               <p className="text-5xl font-bold text-blue-900">{totalHours.toFixed(2)}</p>
             </div>
           </div>
