@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import StatsCard from "../components/dashboard/StatsCard";
 import EmployeeHoursTable from "../components/dashboard/EmployeeHoursTable";
 import MonthlyHoursTable from "../components/dashboard/MonthlyHoursTable";
@@ -22,12 +23,36 @@ export default function DashboardPage() {
   const queryClient = useQueryClient();
   const [deleteId, setDeleteId] = React.useState(null);
   const [editingEntry, setEditingEntry] = React.useState(null);
+  const [selectedEmployee, setSelectedEmployee] = React.useState("all");
 
   const { data: allEntries, isLoading } = useQuery({
     queryKey: ['allTimeEntries'],
     queryFn: () => base44.entities.TimeEntry.list("-date"),
     initialData: [],
   });
+
+  const { data: users } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+    initialData: [],
+  });
+
+  const usersByEmail = React.useMemo(() => {
+    const map = {};
+    users?.forEach(user => {
+      map[user.email] = user.full_name || user.email;
+    });
+    return map;
+  }, [users]);
+
+  const employees = React.useMemo(() => {
+    return [...new Set(allEntries.map(e => e.created_by))];
+  }, [allEntries]);
+
+  const filteredEntries = React.useMemo(() => {
+    if (selectedEmployee === "all") return allEntries;
+    return allEntries.filter(e => e.created_by === selectedEmployee);
+  }, [allEntries, selectedEmployee]);
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }) => base44.entities.TimeEntry.update(id, { status }),
@@ -77,7 +102,7 @@ export default function DashboardPage() {
   };
 
   const stats = React.useMemo(() => {
-    const thisWeekHours = allEntries
+    const thisWeekHours = filteredEntries
       .filter(e => {
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
@@ -85,7 +110,7 @@ export default function DashboardPage() {
       })
       .reduce((sum, e) => sum + (e.total_hours || 0), 0);
 
-    const thisMonthHours = allEntries
+    const thisMonthHours = filteredEntries
       .filter(e => {
         const monthAgo = new Date();
         monthAgo.setMonth(monthAgo.getMonth() - 1);
@@ -93,18 +118,37 @@ export default function DashboardPage() {
       })
       .reduce((sum, e) => sum + (e.total_hours || 0), 0);
 
-    const pendingCount = allEntries.filter(e => e.status === "pending").length;
-    const approvedCount = allEntries.filter(e => e.status === "approved").length;
+    const pendingCount = filteredEntries.filter(e => e.status === "pending").length;
+    const approvedCount = filteredEntries.filter(e => e.status === "approved").length;
 
     return { thisWeekHours, thisMonthHours, pendingCount, approvedCount };
-  }, [allEntries]);
+  }, [filteredEntries]);
 
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">לוח בקרה</h1>
-          <p className="text-lg text-slate-600">מעקב וניהול שעות עבודה</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-slate-900 mb-2">לוח בקרה</h1>
+            <p className="text-lg text-slate-600">מעקב וניהול שעות עבודה</p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Users className="w-5 h-5 text-slate-600" />
+            <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+              <SelectTrigger className="w-64">
+                <SelectValue placeholder="בחר עובד" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">כל העובדים</SelectItem>
+                {employees.map((employee) => (
+                  <SelectItem key={employee} value={employee}>
+                    {usersByEmail[employee] || employee}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -164,12 +208,12 @@ export default function DashboardPage() {
           </TabsList>
 
           <TabsContent value="monthly">
-            <MonthlyHoursTable entries={allEntries} />
+            <MonthlyHoursTable entries={filteredEntries} />
           </TabsContent>
 
           <TabsContent value="approvals">
             <EmployeeHoursTable
-              entries={allEntries}
+              entries={filteredEntries}
               onUpdateStatus={handleUpdateStatus}
               onEdit={handleEdit}
               onDelete={handleDelete}
