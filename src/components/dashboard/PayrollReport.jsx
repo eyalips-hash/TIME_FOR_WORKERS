@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -106,7 +107,7 @@ export default function PayrollReport({ employee, entries, month, year }) {
 
           {/* Footer */}
           <div className="mt-12 pt-6 border-t text-center text-slate-500 text-sm">
-            <p>דוח זה הופק אוטומטית ממערכת דיווח השעות</p>
+            <p>דוח הופק במערכת הפקת הדוחות של IPS</p>
             <p className="mt-1">{format(new Date(), "d/M/yyyy HH:mm", { locale: he })}</p>
           </div>
         </CardContent>
