@@ -52,6 +52,17 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
     );
   }
 
+  const entriesByEmployee = React.useMemo(() => {
+    const grouped = {};
+    entries.forEach(entry => {
+      if (!grouped[entry.created_by]) {
+        grouped[entry.created_by] = [];
+      }
+      grouped[entry.created_by].push(entry);
+    });
+    return grouped;
+  }, [entries]);
+
   return (
     <div className="space-y-6">
       {showMonthSelector && (
@@ -84,55 +95,76 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
         </CardContent>
       </Card>
 
-      {/* Main Table */}
-      <Card className="shadow-lg border-0 bg-white/90 backdrop-blur">
-        <CardHeader className="border-b border-slate-100">
-          <CardTitle className="text-xl font-bold text-slate-900">דיווחי שעות לאישור</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-slate-50">
-                  <TableHead className="text-right font-bold">תאריך</TableHead>
-                  <TableHead className="text-right font-bold">עובד</TableHead>
-                  <TableHead className="text-right font-bold">שעות</TableHead>
-                  <TableHead className="text-right font-bold">סטטוס</TableHead>
-                  <TableHead className="text-right font-bold">פעולות</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {entries.map((entry) => (
-                  <TableRow key={entry.id} className="hover:bg-slate-50 transition-colors">
-                    <TableCell className="font-semibold">
-                      {format(new Date(entry.date), "d בMMMM yyyy", { locale: he })}
-                    </TableCell>
-                    <TableCell>{usersByEmail[entry.created_by] || entry.created_by}</TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <p className="font-medium">{entry.start_time} - {entry.end_time}</p>
-                        <p className="text-slate-500">סה״כ: {entry.total_hours?.toFixed(2)} שעות</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={statusConfig[entry.status]?.color}>
-                        {statusConfig[entry.status]?.label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        {onEdit && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => onEdit(entry)}
-                            className="hover:bg-blue-50"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                        )}
-                        {entry.status === "pending" && (
-                          <>
+      {/* Main Table - Grouped by Employee */}
+      {Object.entries(entriesByEmployee).map(([employee, employeeEntries]) => (
+        <Card key={employee} className="shadow-lg border-0 bg-white/90 backdrop-blur">
+          <CardHeader className="border-b border-slate-100 bg-slate-50">
+            <CardTitle className="text-xl font-bold text-slate-900">
+              {usersByEmail[employee] || employee}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-slate-50">
+                    <TableHead className="text-right font-bold">תאריך</TableHead>
+                    <TableHead className="text-right font-bold">שעות</TableHead>
+                    <TableHead className="text-right font-bold">סטטוס</TableHead>
+                    <TableHead className="text-right font-bold">פעולות</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {employeeEntries.map((entry) => (
+                    <TableRow key={entry.id} className="hover:bg-slate-50 transition-colors">
+                      <TableCell className="font-semibold">
+                        {format(new Date(entry.date), "d בMMMM yyyy", { locale: he })}
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          <p className="font-medium">{entry.start_time} - {entry.end_time}</p>
+                          <p className="text-slate-500">סה״כ: {entry.total_hours?.toFixed(2)} שעות</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={statusConfig[entry.status]?.color}>
+                          {statusConfig[entry.status]?.label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          {onEdit && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => onEdit(entry)}
+                              className="hover:bg-blue-50"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                          )}
+                          {entry.status === "pending" && (
+                            <>
+                              <Button
+                                size="sm"
+                                onClick={() => onUpdateStatus(entry.id, "approved")}
+                                className="bg-green-500 hover:bg-green-600"
+                              >
+                                <CheckCircle className="w-4 h-4 ml-1" />
+                                אשר
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => onUpdateStatus(entry.id, "rejected")}
+                                className="text-red-600 hover:bg-red-50"
+                              >
+                                <XCircle className="w-4 h-4 ml-1" />
+                                דחה
+                              </Button>
+                            </>
+                          )}
+                          {entry.status === "rejected" && (
                             <Button
                               size="sm"
                               onClick={() => onUpdateStatus(entry.id, "approved")}
@@ -141,46 +173,27 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
                               <CheckCircle className="w-4 h-4 ml-1" />
                               אשר
                             </Button>
+                          )}
+                          {onDelete && (
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => onUpdateStatus(entry.id, "rejected")}
-                              className="text-red-600 hover:bg-red-50"
+                              onClick={() => onDelete(entry.id)}
+                              className="hover:bg-red-50 text-red-600"
                             >
-                              <XCircle className="w-4 h-4 ml-1" />
-                              דחה
+                              <Trash2 className="w-4 h-4" />
                             </Button>
-                          </>
-                        )}
-                        {entry.status === "rejected" && (
-                          <Button
-                            size="sm"
-                            onClick={() => onUpdateStatus(entry.id, "approved")}
-                            className="bg-green-500 hover:bg-green-600"
-                          >
-                            <CheckCircle className="w-4 h-4 ml-1" />
-                            אשר
-                          </Button>
-                        )}
-                        {onDelete && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => onDelete(entry.id)}
-                            className="hover:bg-red-50 text-red-600"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }
