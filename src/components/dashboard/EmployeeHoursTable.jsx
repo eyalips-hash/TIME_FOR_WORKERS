@@ -121,6 +121,16 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
+                        {onEdit && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => onEdit(entry)}
+                            className="hover:bg-blue-50"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                        )}
                         {entry.status === "pending" && (
                           <>
                             <Button
@@ -141,16 +151,6 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
                               דחה
                             </Button>
                           </>
-                        )}
-                        {onEdit && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => onEdit(entry)}
-                            className="hover:bg-blue-50"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
                         )}
                         {onDelete && (
                           <Button
