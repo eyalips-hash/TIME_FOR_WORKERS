@@ -152,6 +152,16 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
                             </Button>
                           </>
                         )}
+                        {entry.status === "rejected" && (
+                          <Button
+                            size="sm"
+                            onClick={() => onUpdateStatus(entry.id, "approved")}
+                            className="bg-green-500 hover:bg-green-600"
+                          >
+                            <CheckCircle className="w-4 h-4 ml-1" />
+                            אשר
+                          </Button>
+                        )}
                         {onDelete && (
                           <Button
                             size="sm"
