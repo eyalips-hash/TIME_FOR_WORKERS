@@ -1,6 +1,5 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
-import { createPageUrl } from "@/utils";
 import { Loader2 } from "lucide-react";
 import Dashboard from "./Dashboard";
 import TimeEntry from "./TimeEntry";
@@ -8,12 +7,22 @@ import TimeEntry from "./TimeEntry";
 export default function HomePage() {
   const [user, setUser] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
+  const [isAdmin, setIsAdmin] = React.useState(false);
 
   React.useEffect(() => {
-    base44.auth.me().then(u => {
-      setUser(u);
-      setLoading(false);
-    });
+    const fetchUser = async () => {
+      try {
+        const u = await base44.auth.me();
+        console.log("Full user object:", JSON.stringify(u));
+        setUser(u);
+        setIsAdmin(u?.role === 'admin');
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
   }, []);
 
   if (loading) {
@@ -24,7 +33,10 @@ export default function HomePage() {
     );
   }
 
-  if (user?.role === 'admin') {
+  // Debug display
+  console.log("Is admin:", isAdmin, "Role:", user?.role);
+
+  if (isAdmin) {
     return <Dashboard />;
   }
 
