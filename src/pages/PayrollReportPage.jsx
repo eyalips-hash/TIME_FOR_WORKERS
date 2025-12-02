@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Link2, Lock, CheckCircle } from "lucide-react";
+import { ArrowRight, Lock, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import PayrollReport from "../components/dashboard/PayrollReport";
 
@@ -15,7 +15,7 @@ export default function PayrollReportPage() {
   const employee = searchParams.get("employee");
   const month = parseInt(searchParams.get("month") || new Date().getMonth());
   const year = parseInt(searchParams.get("year") || new Date().getFullYear());
-  const [copied, setCopied] = React.useState(false);
+
 
   const { data: entries, isLoading } = useQuery({
     queryKey: ['payrollEntries', employee, month, year],
@@ -57,12 +57,7 @@ export default function PayrollReportPage() {
     },
   });
 
-  const copyLink = () => {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+
 
   if (!employee) {
     return (
@@ -97,23 +92,7 @@ export default function PayrollReportPage() {
             חזרה
           </Button>
           
-          <Button 
-            variant="outline" 
-            onClick={copyLink}
-            className={copied ? "bg-green-50 border-green-300" : ""}
-          >
-            {copied ? (
-              <>
-                <CheckCircle className="w-4 h-4 ml-2 text-green-600" />
-                הקישור הועתק!
-              </>
-            ) : (
-              <>
-                <Link2 className="w-4 h-4 ml-2" />
-                העתק קישור לדוח
-              </>
-            )}
-          </Button>
+
 
           {isMonthClosed ? (
             <Badge className="bg-green-100 text-green-800 px-4 py-2">
