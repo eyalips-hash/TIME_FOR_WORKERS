@@ -9,13 +9,14 @@ export default function HomePage() {
 
   React.useEffect(() => {
     base44.auth.me().then(user => {
+      console.log("User role:", user?.role);
       if (user?.role === 'admin') {
-        navigate(createPageUrl("Dashboard"), { replace: true });
+        window.location.href = createPageUrl("Dashboard");
       } else {
-        navigate(createPageUrl("TimeEntry"), { replace: true });
+        window.location.href = createPageUrl("TimeEntry");
       }
     });
-  }, [navigate]);
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
