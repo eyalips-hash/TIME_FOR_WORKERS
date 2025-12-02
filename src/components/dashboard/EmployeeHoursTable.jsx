@@ -148,7 +148,7 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          {onEdit && (
+                          {onEdit && !isMonthClosed(entry) && (
                             <Button
                               size="sm"
                               variant="outline"
@@ -158,7 +158,7 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
                               <Pencil className="w-4 h-4" />
                             </Button>
                           )}
-                          {entry.status === "pending" && (
+                          {entry.status === "pending" && !isMonthClosed(entry) && (
                             <>
                               <Button
                                 size="sm"
@@ -179,7 +179,7 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
                               </Button>
                             </>
                           )}
-                          {entry.status === "rejected" && (
+                          {entry.status === "rejected" && !isMonthClosed(entry) && (
                             <Button
                               size="sm"
                               onClick={() => onUpdateStatus(entry.id, "approved")}
@@ -189,7 +189,7 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
                               אשר
                             </Button>
                           )}
-                          {onDelete && (
+                          {onDelete && !isMonthClosed(entry) && (
                             <Button
                               size="sm"
                               variant="outline"
@@ -198,6 +198,9 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
+                          )}
+                          {isMonthClosed(entry) && (
+                            <Badge variant="outline" className="text-slate-500">חודש סגור</Badge>
                           )}
                         </div>
                       </TableCell>
