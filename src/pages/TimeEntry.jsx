@@ -27,6 +27,13 @@ export default function TimeEntryPage() {
     initialData: [],
   });
 
+  const { data: closedMonths } = useQuery({
+    queryKey: ['closedMonths', user?.email],
+    queryFn: () => base44.entities.ClosedMonth.filter({ employee: user.email }),
+    enabled: !!user?.email,
+    initialData: [],
+  });
+
   const createEntryMutation = useMutation({
     mutationFn: (data) => base44.entities.TimeEntry.create(data),
     onSuccess: () => {
@@ -45,6 +52,20 @@ export default function TimeEntryPage() {
   });
 
   const handleSubmit = (data) => {
+    const entryDate = new Date(data.date);
+    const entryMonth = entryDate.getMonth();
+    const entryYear = entryDate.getFullYear();
+
+    // בדיקה שהחודש לא סגור
+    const isMonthClosed = closedMonths?.some(
+      cm => cm.month === entryMonth && cm.year === entryYear
+    );
+
+    if (isMonthClosed) {
+      setError("לא ניתן לדווח - החודש נסגר על ידי המנהל.");
+      return;
+    }
+
     // בדיקה שאין דיווח כפול לאותו יום
     const dateExists = existingEntries?.some(entry => entry.date === data.date);
     
