@@ -1,9 +1,11 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Clock, BarChart3, Plus, LogOut, Menu, Users } from "lucide-react";
+import { Clock, BarChart3, Plus, LogOut, Menu, Users, CheckCircle, FileText } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
@@ -15,6 +17,15 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   const isAdmin = user?.role === 'admin';
+
+  const { data: pendingEntries } = useQuery({
+    queryKey: ['pendingEntries'],
+    queryFn: () => base44.entities.TimeEntry.filter({ status: 'pending' }),
+    initialData: [],
+    enabled: isAdmin,
+  });
+
+  const pendingCount = pendingEntries?.length || 0;
 
   const navigationItems = [
     {
@@ -28,6 +39,19 @@ export default function Layout({ children, currentPageName }) {
       url: createPageUrl("TimeEntry"),
       icon: Plus,
       show: true,
+    },
+    {
+      title: "אישור דיווחים",
+      url: createPageUrl("Approvals"),
+      icon: CheckCircle,
+      show: isAdmin,
+      badge: pendingCount,
+    },
+    {
+      title: "הפקת דוחות",
+      url: createPageUrl("Reports"),
+      icon: FileText,
+      show: isAdmin,
     },
     {
       title: "ניהול עובדים",
@@ -74,14 +98,21 @@ export default function Layout({ children, currentPageName }) {
                   key={item.title}
                   to={item.url}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 ${
+                  className={`flex items-center justify-between px-4 py-4 rounded-xl transition-all duration-200 ${
                     location.pathname === item.url 
                       ? 'bg-blue-500 text-white shadow-lg' 
                       : 'hover:bg-blue-50 hover:text-blue-700 text-slate-700'
                   }`}
                 >
-                  <item.icon className="w-6 h-6" />
-                  <span className="font-semibold text-lg">{item.title}</span>
+                  <div className="flex items-center gap-4">
+                    <item.icon className="w-6 h-6" />
+                    <span className="font-semibold text-lg">{item.title}</span>
+                  </div>
+                  {item.badge > 0 && (
+                    <Badge className="bg-red-500 text-white hover:bg-red-500">
+                      {item.badge}
+                    </Badge>
+                  )}
                 </Link>
               ))}
             </div>
