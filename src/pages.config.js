@@ -3,7 +3,9 @@ import MyHours from './pages/MyHours';
 import Dashboard from './pages/Dashboard';
 import PayrollReportPage from './pages/PayrollReportPage';
 import ManageUsers from './pages/ManageUsers';
-import Layout from './Layout.jsx';
+import Approvals from './pages/Approvals';
+import Reports from './pages/Reports';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
@@ -12,10 +14,12 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "PayrollReportPage": PayrollReportPage,
     "ManageUsers": ManageUsers,
+    "Approvals": Approvals,
+    "Reports": Reports,
 }
 
 export const pagesConfig = {
     mainPage: "TimeEntry",
     Pages: PAGES,
-    Layout: Layout,
+    Layout: __Layout,
 };
