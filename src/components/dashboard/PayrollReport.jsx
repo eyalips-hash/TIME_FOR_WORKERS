@@ -42,73 +42,58 @@ export default function PayrollReport({ employee, entries, month, year }) {
       </div>
 
       <Card className="shadow-xl print:shadow-none">
-        <CardContent className="p-6 print:p-4">
+        <CardContent className="p-4 print:p-2">
           {/* Header */}
-            <div className="border-b-2 border-blue-600 pb-2 mb-3">
-              <h1 className="text-xl font-bold text-slate-900 mb-1">
-                {employeeName} {month + 1}-{year.toString().slice(-2)}
-              </h1>
-            </div>
-
-          {/* Employee Info */}
-          <div className="grid grid-cols-2 gap-3 mb-3 bg-slate-50 p-2 rounded-lg">
-            <div>
-              <p className="text-xs text-slate-500">שם עובד</p>
-              <p className="text-sm font-bold text-slate-900">{employeeName}</p>
-            </div>
-            <div>
-              <p className="text-xs text-slate-500">תאריך הפקה</p>
-              <p className="text-sm font-bold text-slate-900">
-                {format(new Date(), "d בMMMM yyyy", { locale: he })}
-              </p>
-            </div>
+          <div className="border-b border-blue-600 pb-1 mb-2 flex justify-between items-center">
+            <h1 className="text-base font-bold text-slate-900">
+              {employeeName} {month + 1}-{year.toString().slice(-2)}
+            </h1>
+            <p className="text-[10px] text-slate-500">
+              הופק: {format(new Date(), "d/M/yyyy", { locale: he })}
+            </p>
           </div>
 
           {/* Hours Table */}
-          <div className="mb-3">
-            <h2 className="text-sm font-bold text-slate-900 mb-1.5">פירוט שעות</h2>
-            <table className="w-full border-collapse text-xs">
-              <thead>
-                <tr className="bg-slate-100">
-                  <th className="text-right p-1.5 font-bold border border-slate-300">תאריך</th>
-                  <th className="text-right p-1.5 font-bold border border-slate-300">כניסה</th>
-                  <th className="text-right p-1.5 font-bold border border-slate-300">יציאה</th>
-                  <th className="text-right p-1.5 font-bold border border-slate-300">הפסקה</th>
-                  <th className="text-right p-1.5 font-bold border border-slate-300">סה״כ שעות</th>
+          <table className="w-full border-collapse text-[10px] print:text-[9px]">
+            <thead>
+              <tr className="bg-slate-100">
+                <th className="text-right p-1 font-bold border border-slate-300">תאריך</th>
+                <th className="text-right p-1 font-bold border border-slate-300">כניסה</th>
+                <th className="text-right p-1 font-bold border border-slate-300">יציאה</th>
+                <th className="text-right p-1 font-bold border border-slate-300">הפסקה</th>
+                <th className="text-right p-1 font-bold border border-slate-300">שעות</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredEntries.map((entry) => (
+                <tr key={entry.id}>
+                  <td className="p-1 border border-slate-300">
+                    {format(new Date(entry.date), "d/M")}
+                  </td>
+                  <td className="p-1 border border-slate-300">{entry.start_time}</td>
+                  <td className="p-1 border border-slate-300">{entry.end_time}</td>
+                  <td className="p-1 border border-slate-300">{entry.break_minutes}'</td>
+                  <td className="p-1 border border-slate-300 font-bold">
+                    {entry.total_hours?.toFixed(2)}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredEntries.map((entry) => (
-                  <tr key={entry.id}>
-                    <td className="p-1.5 border border-slate-300">
-                      {format(new Date(entry.date), "d בMMMM", { locale: he })}
-                    </td>
-                    <td className="p-1.5 border border-slate-300">{entry.start_time}</td>
-                    <td className="p-1.5 border border-slate-300">{entry.end_time}</td>
-                    <td className="p-1.5 border border-slate-300">{entry.break_minutes} דק׳</td>
-                    <td className="p-1.5 border border-slate-300 font-bold">
-                      {entry.total_hours?.toFixed(2)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Summary */}
-          <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-            <div className="text-center">
-              <p className="text-xs text-blue-600 mb-0.5">
-                סה״כ שעות מאושרות לחודש {format(new Date(year, month), "MMMM yyyy", { locale: he })}
-              </p>
-              <p className="text-2xl font-bold text-blue-900">{totalHours.toFixed(2)}</p>
-            </div>
-          </div>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="bg-blue-50 font-bold">
+                <td colSpan={4} className="p-1 border border-slate-300 text-right">
+                  סה״כ שעות מאושרות:
+                </td>
+                <td className="p-1 border border-slate-300 text-blue-900">
+                  {totalHours.toFixed(2)}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
 
           {/* Footer */}
-          <div className="mt-4 pt-2 border-t text-center text-slate-500 text-xs">
-            <p>דוח הופק במערכת הפקת הדוחות של IPS</p>
-            <p className="mt-0.5">{format(new Date(), "d/M/yyyy HH:mm", { locale: he })}</p>
+          <div className="mt-2 pt-1 border-t text-center text-slate-400 text-[8px]">
+            <p>IPS - מערכת שעות</p>
           </div>
         </CardContent>
       </Card>
@@ -119,7 +104,7 @@ export default function PayrollReport({ employee, entries, month, year }) {
             display: none !important;
           }
           @page {
-            margin: 0.5cm;
+            margin: 0.3cm;
             size: A4;
           }
           body {
