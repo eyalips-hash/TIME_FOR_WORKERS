@@ -29,15 +29,15 @@ export default function Layout({ children, currentPageName }) {
 
   const navigationItems = [
     {
-      title: isAdmin ? "לוח בקרה" : "השעות שלי",
-      url: isAdmin ? createPageUrl("Dashboard") : createPageUrl("MyHours"),
-      icon: isAdmin ? BarChart3 : Clock,
+      title: isAdmin ? "לוח בקרה" : "דיווח חדש",
+      url: isAdmin ? createPageUrl("Dashboard") : createPageUrl("TimeEntry"),
+      icon: isAdmin ? BarChart3 : Plus,
       show: true,
     },
     {
-      title: "דיווח חדש",
-      url: createPageUrl("TimeEntry"),
-      icon: Plus,
+      title: isAdmin ? "דיווח חדש" : "השעות שלי",
+      url: isAdmin ? createPageUrl("TimeEntry") : createPageUrl("MyHours"),
+      icon: isAdmin ? Plus : Clock,
       show: true,
     },
     {
