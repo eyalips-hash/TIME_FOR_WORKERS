@@ -44,12 +44,11 @@ export default function PayrollReport({ employee, entries, month, year }) {
       <Card className="shadow-xl print:shadow-none">
         <CardContent className="p-6 print:p-4">
           {/* Header */}
-          <div className="border-b-2 border-blue-600 pb-2 mb-3">
-            <h1 className="text-xl font-bold text-slate-900 mb-1">דוח שעות עבודה</h1>
-            <p className="text-lg text-blue-700 font-semibold">
-              חודש {format(new Date(year, month), "MMMM yyyy", { locale: he })}
-            </p>
-          </div>
+            <div className="border-b-2 border-blue-600 pb-2 mb-3">
+              <h1 className="text-xl font-bold text-slate-900 mb-1">
+                {employeeName} {month + 1}-{year.toString().slice(-2)}
+              </h1>
+            </div>
 
           {/* Employee Info */}
           <div className="grid grid-cols-2 gap-3 mb-3 bg-slate-50 p-2 rounded-lg">
