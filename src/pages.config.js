@@ -5,6 +5,7 @@ import PayrollReportPage from './pages/PayrollReportPage';
 import ManageUsers from './pages/ManageUsers';
 import Approvals from './pages/Approvals';
 import Reports from './pages/Reports';
+import Home from './pages/Home';
 import __Layout from './Layout.jsx';
 
 
@@ -16,6 +17,7 @@ export const PAGES = {
     "ManageUsers": ManageUsers,
     "Approvals": Approvals,
     "Reports": Reports,
+    "Home": Home,
 }
 
 export const pagesConfig = {
