@@ -26,6 +26,21 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
     initialData: [],
   });
 
+  const { data: closedMonths } = useQuery({
+    queryKey: ['closedMonths'],
+    queryFn: () => base44.entities.ClosedMonth.list(),
+    initialData: [],
+  });
+
+  const isMonthClosed = (entry) => {
+    const entryDate = new Date(entry.date);
+    const entryMonth = entryDate.getMonth();
+    const entryYear = entryDate.getFullYear();
+    return closedMonths?.some(
+      cm => cm.employee === entry.created_by && cm.month === entryMonth && cm.year === entryYear
+    );
+  };
+
   const usersByEmail = React.useMemo(() => {
     const map = {};
     users?.forEach(user => {
