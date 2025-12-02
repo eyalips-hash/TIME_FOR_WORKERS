@@ -1,26 +1,32 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
-import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Loader2 } from "lucide-react";
+import Dashboard from "./Dashboard";
+import TimeEntry from "./TimeEntry";
 
 export default function HomePage() {
-  const navigate = useNavigate();
+  const [user, setUser] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    base44.auth.me().then(user => {
-      console.log("User role:", user?.role);
-      if (user?.role === 'admin') {
-        window.location.href = createPageUrl("Dashboard");
-      } else {
-        window.location.href = createPageUrl("TimeEntry");
-      }
+    base44.auth.me().then(u => {
+      setUser(u);
+      setLoading(false);
     });
   }, []);
 
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      </div>
+    );
+  }
+
+  if (user?.role === 'admin') {
+    return <Dashboard />;
+  }
+
+  return <TimeEntry />;
 }
