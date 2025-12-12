@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Calendar, CheckCircle, XCircle, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, CheckCircle, XCircle, Clock, Pencil, Trash2 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
 import { he } from "date-fns/locale";
 import { useQuery } from "@tanstack/react-query";
@@ -15,7 +15,7 @@ const statusConfig = {
   rejected: { label: "נדחה", color: "bg-red-100 text-red-800", icon: XCircle },
 };
 
-export default function MonthlyHoursTable({ entries }) {
+export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onDelete }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const monthStart = startOfMonth(currentMonth);
@@ -27,6 +27,22 @@ export default function MonthlyHoursTable({ entries }) {
     queryFn: () => base44.entities.User.list(),
     initialData: [],
   });
+
+  const { data: closedMonths } = useQuery({
+    queryKey: ['closedMonths'],
+    queryFn: () => base44.entities.ClosedMonth.list(),
+    initialData: [],
+  });
+
+  const isMonthClosed = (entry) => {
+    const entryDate = new Date(entry.date);
+    const entryMonth = entryDate.getMonth();
+    const entryYear = entryDate.getFullYear();
+    const employeeEmail = entry.employee_email || entry.created_by;
+    return closedMonths?.some(
+      cm => cm.employee === employeeEmail && cm.month === entryMonth && cm.year === entryYear
+    );
+  };
 
   const usersByEmail = React.useMemo(() => {
     const map = {};
@@ -164,6 +180,9 @@ export default function MonthlyHoursTable({ entries }) {
                       <TableHead className="text-right font-bold">זמנים</TableHead>
                       <TableHead className="text-right font-bold">סטטוס</TableHead>
                       <TableHead className="text-right font-bold">הערות</TableHead>
+                      {(onEdit || onUpdateStatus || onDelete) && (
+                        <TableHead className="text-right font-bold">פעולות</TableHead>
+                      )}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -236,10 +255,65 @@ export default function MonthlyHoursTable({ entries }) {
                               <span className="text-slate-300">-</span>
                             )}
                           </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
+                          {(onEdit || onUpdateStatus || onDelete) && (
+                            <TableCell>
+                              {entry ? (
+                                <div className="flex gap-2">
+                                  {!isMonthClosed(entry) ? (
+                                    <>
+                                      {onEdit && (
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => onEdit(entry)}
+                                          className="hover:bg-blue-50"
+                                        >
+                                          <Pencil className="w-4 h-4" />
+                                        </Button>
+                                      )}
+                                      {onUpdateStatus && entry.status !== "approved" && (
+                                        <Button
+                                          size="sm"
+                                          onClick={() => onUpdateStatus(entry.id, "approved")}
+                                          className="bg-green-500 hover:bg-green-600"
+                                        >
+                                          <CheckCircle className="w-4 h-4" />
+                                        </Button>
+                                      )}
+                                      {onUpdateStatus && entry.status !== "rejected" && (
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => onUpdateStatus(entry.id, "rejected")}
+                                          className="text-red-600 hover:bg-red-50"
+                                        >
+                                          <XCircle className="w-4 h-4" />
+                                        </Button>
+                                      )}
+                                      {onDelete && (
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => onDelete(entry.id)}
+                                          className="hover:bg-red-50 text-red-600"
+                                        >
+                                          <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <Badge variant="outline" className="text-slate-500 text-xs">חודש סגור</Badge>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-slate-300">-</span>
+                              )}
+                            </TableCell>
+                          )}
+                          </TableRow>
+                          );
+                          })}
+                          </TableBody>
                 </Table>
               </div>
 

@@ -164,7 +164,11 @@ export default function MyHoursPage() {
           </TabsList>
 
           <TabsContent value="monthly">
-            <MonthlyHoursTable entries={entries} />
+            <MonthlyHoursTable 
+              entries={entries}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           </TabsContent>
 
           <TabsContent value="list">

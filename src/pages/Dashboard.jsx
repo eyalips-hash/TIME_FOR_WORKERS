@@ -214,7 +214,12 @@ export default function DashboardPage() {
           </TabsList>
 
           <TabsContent value="monthly">
-            <MonthlyHoursTable entries={filteredEntries} />
+            <MonthlyHoursTable 
+              entries={filteredEntries}
+              onUpdateStatus={handleUpdateStatus}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           </TabsContent>
 
           <TabsContent value="approvals">
