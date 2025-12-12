@@ -12,9 +12,13 @@ export default function TimeEntryPage() {
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [error, setError] = React.useState(null);
   const [user, setUser] = React.useState(null);
+  const [isAdmin, setIsAdmin] = React.useState(false);
 
   React.useEffect(() => {
-    base44.auth.me().then(setUser);
+    base44.auth.me().then(u => {
+      setUser(u);
+      setIsAdmin(u?.role === 'admin');
+    });
   }, []);
 
   const { data: existingEntries } = useQuery({
@@ -52,13 +56,14 @@ export default function TimeEntryPage() {
   });
 
   const handleSubmit = (data) => {
+    const employeeEmail = data.employee_email || user?.email;
     const entryDate = new Date(data.date);
     const entryMonth = entryDate.getMonth();
     const entryYear = entryDate.getFullYear();
 
     // בדיקה שהחודש לא סגור
     const isMonthClosed = closedMonths?.some(
-      cm => cm.month === entryMonth && cm.year === entryYear
+      cm => cm.employee === employeeEmail && cm.month === entryMonth && cm.year === entryYear
     );
 
     if (isMonthClosed) {
@@ -67,10 +72,12 @@ export default function TimeEntryPage() {
     }
 
     // בדיקה שאין דיווח כפול לאותו יום
-    const dateExists = existingEntries?.some(entry => entry.date === data.date);
+    const dateExists = existingEntries?.some(
+      entry => entry.date === data.date && (entry.employee_email || entry.created_by) === employeeEmail
+    );
     
     if (dateExists) {
-      setError("כבר קיים דיווח לתאריך זה. לא ניתן לדווח יותר מפעם אחת ליום.");
+      setError("כבר קיים דיווח לתאריך זה עבור העובד.");
       return;
     }
 
@@ -113,6 +120,7 @@ export default function TimeEntryPage() {
         <TimeEntryForm
           onSubmit={handleSubmit}
           isSubmitting={createEntryMutation.isPending}
+          isAdmin={isAdmin}
         />
       </div>
     </div>
