@@ -38,9 +38,8 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
     const entryDate = new Date(entry.date);
     const entryMonth = entryDate.getMonth();
     const entryYear = entryDate.getFullYear();
-    const employeeEmail = entry.employee_email || entry.created_by;
     return closedMonths?.some(
-      cm => cm.employee === employeeEmail && cm.month === entryMonth && cm.year === entryYear
+      cm => cm.employee === entry.employee_email && cm.month === entryMonth && cm.year === entryYear
     );
   };
 
@@ -56,12 +55,11 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
     const grouped = {};
     entries?.forEach(entry => {
       const entryDate = new Date(entry.date);
-      if (entryDate >= monthStart && entryDate <= monthEnd) {
-        const employeeEmail = entry.employee_email || entry.created_by;
-        if (!grouped[employeeEmail]) {
-          grouped[employeeEmail] = [];
+      if (entryDate >= monthStart && entryDate <= monthEnd && entry.employee_email) {
+        if (!grouped[entry.employee_email]) {
+          grouped[entry.employee_email] = [];
         }
-        grouped[employeeEmail].push(entry);
+        grouped[entry.employee_email].push(entry);
       }
     });
     return grouped;

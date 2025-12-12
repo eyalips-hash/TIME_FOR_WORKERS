@@ -46,12 +46,12 @@ export default function DashboardPage() {
   }, [users]);
 
   const employees = React.useMemo(() => {
-    return [...new Set(allEntries.map(e => e.employee_email || e.created_by))];
+    return [...new Set(allEntries.map(e => e.employee_email).filter(Boolean))];
   }, [allEntries]);
 
   const filteredEntries = React.useMemo(() => {
     if (selectedEmployee === "all") return allEntries;
-    return allEntries.filter(e => (e.employee_email || e.created_by) === selectedEmployee);
+    return allEntries.filter(e => e.employee_email === selectedEmployee);
   }, [allEntries, selectedEmployee]);
 
   const updateStatusMutation = useMutation({

@@ -37,7 +37,7 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
     const entryMonth = entryDate.getMonth();
     const entryYear = entryDate.getFullYear();
     return closedMonths?.some(
-      cm => cm.employee === entry.created_by && cm.month === entryMonth && cm.year === entryYear
+      cm => cm.employee === entry.employee_email && cm.month === entryMonth && cm.year === entryYear
     );
   };
 
@@ -49,7 +49,7 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
     return map;
   }, [users]);
   
-  const employees = [...new Set(entries.map(e => e.created_by))];
+  const employees = [...new Set(entries.map(e => e.employee_email).filter(Boolean))];
 
   const handleGenerateReportClick = (employee) => {
     setSelectedEmployee(employee);
@@ -70,10 +70,12 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
   const entriesByEmployee = React.useMemo(() => {
     const grouped = {};
     entries.forEach(entry => {
-      if (!grouped[entry.created_by]) {
-        grouped[entry.created_by] = [];
+      if (entry.employee_email) {
+        if (!grouped[entry.employee_email]) {
+          grouped[entry.employee_email] = [];
+        }
+        grouped[entry.employee_email].push(entry);
       }
-      grouped[entry.created_by].push(entry);
     });
     return grouped;
   }, [entries]);
