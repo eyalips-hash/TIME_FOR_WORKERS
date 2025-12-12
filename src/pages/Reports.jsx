@@ -58,6 +58,16 @@ export default function ReportsPage() {
     return map;
   }, [users]);
 
+  // הגדר את אנדרי כברירת מחדל
+  React.useEffect(() => {
+    if (!selectedEmployee && employees.length > 0) {
+      const andrey = employees.find(e => usersByEmail[e]?.includes("אנדרי") || e.includes("andrey"));
+      if (andrey) {
+        setSelectedEmployee(andrey);
+      }
+    }
+  }, [employees, usersByEmail]);
+
   const handleGenerateReport = () => {
     if (!selectedEmployee) return;
     
