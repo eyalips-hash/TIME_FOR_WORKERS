@@ -21,6 +21,13 @@ export default function TimeEntryPage() {
     });
   }, []);
 
+  const { data: users } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+    initialData: [],
+    enabled: isAdmin,
+  });
+
   const { data: existingEntries } = useQuery({
     queryKey: ['myTimeEntries', user?.email],
     queryFn: async () => {

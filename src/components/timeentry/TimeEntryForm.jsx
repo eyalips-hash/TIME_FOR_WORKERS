@@ -23,6 +23,16 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     enabled: isAdmin,
   });
 
+  // הגדר אנדרי כברירת מחדל למנהלים
+  React.useEffect(() => {
+    if (isAdmin && !entry && !formData.employee_email && users && users.length > 0) {
+      const andrey = users.find(u => u.full_name?.includes("אנדרי") || u.email?.includes("andrey"));
+      if (andrey) {
+        setFormData(prev => ({...prev, employee_email: andrey.email}));
+      }
+    }
+  }, [isAdmin, entry, users]);
+
   const [formData, setFormData] = React.useState({
     employee_email: entry?.employee_email || "",
     date: entry?.date || new Date().toISOString().split('T')[0],
