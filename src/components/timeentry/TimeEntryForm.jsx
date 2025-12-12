@@ -49,8 +49,8 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     const totalHours = parseFloat(calculateHours());
     const submitData = { ...formData, total_hours: totalHours };
     
-    // אם אין employee_email (עובד רגיל), השתמש באימייל של המשתמש המחובר
-    if (!submitData.employee_email && user?.email) {
+    // אם אין employee_email - רק במצב יצירה חדשה (לא עריכה)
+    if (!submitData.employee_email && !entry && user?.email) {
       submitData.employee_email = user.email;
     }
     
