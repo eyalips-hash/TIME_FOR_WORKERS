@@ -69,7 +69,7 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
     return entries
       ?.filter(entry => {
         const entryDate = new Date(entry.date);
-        return entryDate >= monthStart && entryDate <= monthEnd;
+        return entryDate >= monthStart && entryDate <= monthEnd && entry.employee_email;
       })
       .reduce((sum, entry) => sum + (entry.total_hours || 0), 0) || 0;
   }, [entries, monthStart, monthEnd]);
@@ -78,7 +78,7 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
     return entries
       ?.filter(entry => {
         const entryDate = new Date(entry.date);
-        return entryDate >= monthStart && entryDate <= monthEnd && entry.status === "approved";
+        return entryDate >= monthStart && entryDate <= monthEnd && entry.status === "approved" && entry.employee_email;
       })
       .reduce((sum, entry) => sum + (entry.total_hours || 0), 0) || 0;
   }, [entries, monthStart, monthEnd]);
@@ -138,7 +138,7 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
               <p className="text-3xl font-bold text-purple-900">
                 {entries?.filter(e => {
                   const entryDate = new Date(e.date);
-                  return entryDate >= monthStart && entryDate <= monthEnd;
+                  return entryDate >= monthStart && entryDate <= monthEnd && e.employee_email;
                 }).length || 0}
               </p>
             </div>
