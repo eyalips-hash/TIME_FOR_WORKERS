@@ -68,7 +68,7 @@ export default function PayrollReport({ employee, entries, month, year }) {
               {filteredEntries.map((entry) => (
                 <tr key={entry.id}>
                   <td className="p-1 border border-slate-300">
-                    {format(new Date(entry.date), "d/M")}
+                    {format(new Date(entry.date), "dd/MM/yy")}
                   </td>
                   <td className="p-1 border border-slate-300">{entry.start_time}</td>
                   <td className="p-1 border border-slate-300">{entry.end_time}</td>

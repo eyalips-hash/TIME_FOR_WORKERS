@@ -85,7 +85,7 @@ export default function TimeEntryList({ entries, isLoading, onEdit, onDelete }) 
                   </div>
                   <div>
                     <p className="text-lg font-bold text-slate-900">
-                      {format(new Date(entry.date), "d בMMMM yyyy", { locale: he })}
+                      {format(new Date(entry.date), "dd/MM/yy")} - {format(new Date(entry.date), "EEEE", { locale: he })}
                     </p>
                     <p className="text-sm text-slate-500">
                       {format(new Date(entry.created_date), "HH:mm", { locale: he })} • דווח על ידי {usersByEmail[entry.created_by] || entry.created_by}
