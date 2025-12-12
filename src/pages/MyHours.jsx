@@ -36,7 +36,7 @@ export default function MyHoursPage() {
     queryKey: ['myTimeEntries', user?.email],
     queryFn: async () => {
       if (!user?.email) return [];
-      return base44.entities.TimeEntry.filter({ created_by: user.email }, "-date");
+      return base44.entities.TimeEntry.filter({ employee_email: user.email }, "-date");
     },
     enabled: !!user?.email,
     initialData: [],

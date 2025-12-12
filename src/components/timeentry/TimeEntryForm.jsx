@@ -4,10 +4,27 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Clock } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 
-export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting }) {
+export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting, isAdmin }) {
+  const [user, setUser] = React.useState(null);
+
+  React.useEffect(() => {
+    base44.auth.me().then(setUser);
+  }, []);
+
+  const { data: users } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+    initialData: [],
+    enabled: isAdmin,
+  });
+
   const [formData, setFormData] = React.useState({
+    employee_email: entry?.employee_email || "",
     date: entry?.date || new Date().toISOString().split('T')[0],
     start_time: entry?.start_time || "09:00",
     end_time: entry?.end_time || "17:00",
@@ -30,13 +47,42 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting 
   const handleSubmit = (e) => {
     e.preventDefault();
     const totalHours = parseFloat(calculateHours());
-    onSubmit({ ...formData, total_hours: totalHours });
+    const submitData = { ...formData, total_hours: totalHours };
+    
+    // אם אין employee_email (עובד רגיל), השתמש באימייל של המשתמש המחובר
+    if (!submitData.employee_email && user?.email) {
+      submitData.employee_email = user.email;
+    }
+    
+    onSubmit(submitData);
   };
 
   return (
     <Card className="shadow-xl border-0 bg-white/90 backdrop-blur">
       <CardContent className="p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {isAdmin && (
+            <div>
+              <Label className="text-slate-700 font-semibold mb-2 block">בחר עובד</Label>
+              <Select 
+                value={formData.employee_email} 
+                onValueChange={(value) => setFormData({...formData, employee_email: value})}
+                required
+              >
+                <SelectTrigger className="h-12 text-base">
+                  <SelectValue placeholder="בחר עובד" />
+                </SelectTrigger>
+                <SelectContent>
+                  {users?.map((u) => (
+                    <SelectItem key={u.email} value={u.email}>
+                      {u.full_name || u.email}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <Label className="text-slate-700 font-semibold mb-2 block">תאריך</Label>

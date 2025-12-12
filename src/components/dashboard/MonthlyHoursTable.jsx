@@ -41,10 +41,11 @@ export default function MonthlyHoursTable({ entries }) {
     entries?.forEach(entry => {
       const entryDate = new Date(entry.date);
       if (entryDate >= monthStart && entryDate <= monthEnd) {
-        if (!grouped[entry.created_by]) {
-          grouped[entry.created_by] = [];
+        const employeeEmail = entry.employee_email || entry.created_by;
+        if (!grouped[employeeEmail]) {
+          grouped[employeeEmail] = [];
         }
-        grouped[entry.created_by].push(entry);
+        grouped[employeeEmail].push(entry);
       }
     });
     return grouped;

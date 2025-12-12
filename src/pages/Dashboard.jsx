@@ -46,12 +46,12 @@ export default function DashboardPage() {
   }, [users]);
 
   const employees = React.useMemo(() => {
-    return [...new Set(allEntries.map(e => e.created_by))];
+    return [...new Set(allEntries.map(e => e.employee_email || e.created_by))];
   }, [allEntries]);
 
   const filteredEntries = React.useMemo(() => {
     if (selectedEmployee === "all") return allEntries;
-    return allEntries.filter(e => e.created_by === selectedEmployee);
+    return allEntries.filter(e => (e.employee_email || e.created_by) === selectedEmployee);
   }, [allEntries, selectedEmployee]);
 
   const updateStatusMutation = useMutation({
@@ -198,6 +198,7 @@ export default function DashboardPage() {
               onSubmit={handleUpdate}
               onCancel={() => setEditingEntry(null)}
               isSubmitting={updateMutation.isPending}
+              isAdmin={true}
             />
           </div>
         )}
