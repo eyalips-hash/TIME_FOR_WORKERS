@@ -49,6 +49,16 @@ export default function DashboardPage() {
     return [...new Set(allEntries.map(e => e.employee_email).filter(Boolean))];
   }, [allEntries]);
 
+  // הגדר את אנדרי כברירת מחדל ברנדור הראשון
+  React.useEffect(() => {
+    if (selectedEmployee === "all" && employees.length > 0) {
+      const andrey = employees.find(e => usersByEmail[e]?.includes("אנדרי") || e.includes("andrey"));
+      if (andrey) {
+        setSelectedEmployee(andrey);
+      }
+    }
+  }, [employees, usersByEmail]);
+
   const filteredEntries = React.useMemo(() => {
     if (selectedEmployee === "all") return allEntries;
     return allEntries.filter(e => e.employee_email === selectedEmployee);
