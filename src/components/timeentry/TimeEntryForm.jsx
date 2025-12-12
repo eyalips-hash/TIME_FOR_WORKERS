@@ -47,7 +47,8 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
 
   React.useEffect(() => {
     if (formData.date) {
-      const selectedDate = new Date(formData.date);
+      const [year, month, day] = formData.date.split('-').map(Number);
+      const selectedDate = new Date(year, month - 1, day);
       const dayOfWeek = selectedDate.getDay();
       setWeekendWarning(dayOfWeek === 5 || dayOfWeek === 6);
     }
