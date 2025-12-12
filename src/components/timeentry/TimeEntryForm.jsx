@@ -13,6 +13,7 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting 
     end_time: entry?.end_time || "17:00",
     break_minutes: entry?.break_minutes || 0,
     notes: entry?.notes || "",
+    status: entry?.status || "pending",
   });
 
   const calculateHours = () => {
