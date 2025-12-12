@@ -205,7 +205,7 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
                               {isToday && (
                                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                               )}
-                              {format(day, "d/M")}
+                              {format(day, "dd/MM/yy")}
                             </div>
                           </TableCell>
                           <TableCell className="text-slate-600">

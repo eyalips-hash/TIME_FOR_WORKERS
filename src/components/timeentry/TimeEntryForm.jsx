@@ -43,6 +43,16 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     status: entry?.status || "pending",
   });
 
+  const [weekendWarning, setWeekendWarning] = React.useState(false);
+
+  React.useEffect(() => {
+    if (formData.date) {
+      const selectedDate = new Date(formData.date);
+      const dayOfWeek = selectedDate.getDay();
+      setWeekendWarning(dayOfWeek === 5 || dayOfWeek === 6);
+    }
+  }, [formData.date]);
+
   const calculateHours = () => {
     const [startHour, startMin] = formData.start_time.split(':').map(Number);
     const [endHour, endMin] = formData.end_time.split(':').map(Number);
@@ -103,6 +113,11 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
                 required
                 className="h-12 text-base"
               />
+              {weekendWarning && (
+                <div className="mt-2 bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-center gap-2">
+                  <span className="text-orange-600 text-sm font-semibold">⚠️ שים לב: התאריך שבחרת הוא יום שישי או שבת</span>
+                </div>
+              )}
             </div>
             <div>
               <Label className="text-slate-700 font-semibold mb-2 block">הפסקה (דקות)</Label>

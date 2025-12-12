@@ -135,7 +135,7 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
                   {employeeEntries.map((entry) => (
                     <TableRow key={entry.id} className="hover:bg-slate-50 transition-colors">
                       <TableCell className="font-semibold">
-                        {format(new Date(entry.date), "d בMMMM yyyy", { locale: he })}
+                        {format(new Date(entry.date), "dd/MM/yy")}
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">

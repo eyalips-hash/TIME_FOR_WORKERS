@@ -115,7 +115,7 @@ export default function ApprovalsPage() {
                           {usersByEmail[entry.created_by] || entry.created_by}
                         </TableCell>
                         <TableCell>
-                          {format(new Date(entry.date), "d בMMMM yyyy", { locale: he })}
+                          {format(new Date(entry.date), "dd/MM/yy")}
                         </TableCell>
                         <TableCell>
                           <span className="font-medium">{entry.start_time}</span>
