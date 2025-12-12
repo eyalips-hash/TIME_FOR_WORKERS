@@ -73,7 +73,7 @@ export default function TimeEntryPage() {
 
     // בדיקה שאין דיווח כפול לאותו יום
     const dateExists = existingEntries?.some(
-      entry => entry.date === data.date && (entry.employee_email || entry.created_by) === employeeEmail
+      entry => entry.date === data.date && entry.employee_email === employeeEmail
     );
     
     if (dateExists) {
