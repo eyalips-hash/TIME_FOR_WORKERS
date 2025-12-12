@@ -148,56 +148,46 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          {onEdit && !isMonthClosed(entry) && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => onEdit(entry)}
-                              className="hover:bg-blue-50"
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </Button>
-                          )}
-                          {entry.status === "pending" && !isMonthClosed(entry) && (
+                          {!isMonthClosed(entry) && (
                             <>
                               <Button
                                 size="sm"
-                                onClick={() => onUpdateStatus(entry.id, "approved")}
-                                className="bg-green-500 hover:bg-green-600"
+                                variant="outline"
+                                onClick={() => onEdit(entry)}
+                                className="hover:bg-blue-50"
                               >
-                                <CheckCircle className="w-4 h-4 ml-1" />
-                                אשר
+                                <Pencil className="w-4 h-4" />
                               </Button>
+                              {entry.status !== "approved" && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => onUpdateStatus(entry.id, "approved")}
+                                  className="bg-green-500 hover:bg-green-600"
+                                >
+                                  <CheckCircle className="w-4 h-4 ml-1" />
+                                  אשר
+                                </Button>
+                              )}
+                              {entry.status !== "rejected" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => onUpdateStatus(entry.id, "rejected")}
+                                  className="text-red-600 hover:bg-red-50"
+                                >
+                                  <XCircle className="w-4 h-4 ml-1" />
+                                  דחה
+                                </Button>
+                              )}
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => onUpdateStatus(entry.id, "rejected")}
-                                className="text-red-600 hover:bg-red-50"
+                                onClick={() => onDelete(entry.id)}
+                                className="hover:bg-red-50 text-red-600"
                               >
-                                <XCircle className="w-4 h-4 ml-1" />
-                                דחה
+                                <Trash2 className="w-4 h-4" />
                               </Button>
                             </>
-                          )}
-                          {entry.status === "rejected" && !isMonthClosed(entry) && (
-                            <Button
-                              size="sm"
-                              onClick={() => onUpdateStatus(entry.id, "approved")}
-                              className="bg-green-500 hover:bg-green-600"
-                            >
-                              <CheckCircle className="w-4 h-4 ml-1" />
-                              אשר
-                            </Button>
-                          )}
-                          {onDelete && !isMonthClosed(entry) && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => onDelete(entry.id)}
-                              className="hover:bg-red-50 text-red-600"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
                           )}
                           {isMonthClosed(entry) && (
                             <Badge variant="outline" className="text-slate-500">חודש סגור</Badge>
