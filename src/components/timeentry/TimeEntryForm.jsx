@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Clock } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { he } from "date-fns/locale";
 
 export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting, isAdmin }) {
   const [user, setUser] = React.useState(null);
@@ -107,13 +109,21 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <Label className="text-slate-700 font-semibold mb-2 block">תאריך</Label>
-              <Input
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData({...formData, date: e.target.value})}
-                required
-                className="h-12 text-base"
-              />
+              <div className="relative">
+                <Input
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData({...formData, date: e.target.value})}
+                  required
+                  className="h-12 text-base"
+                  dir="ltr"
+                />
+                {formData.date && (
+                  <p className="text-sm text-slate-600 mt-1">
+                    {format(new Date(formData.date + 'T00:00:00'), "dd/MM/yyyy - EEEE", { locale: he })}
+                  </p>
+                )}
+              </div>
               {weekendWarning && (
                 <div className="mt-2 bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-center gap-2">
                   <span className="text-orange-600 text-sm font-semibold">⚠️ שים לב: התאריך שבחרת הוא יום שישי או שבת</span>
