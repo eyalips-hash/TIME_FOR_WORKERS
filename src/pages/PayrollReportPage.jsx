@@ -21,7 +21,7 @@ export default function PayrollReportPage() {
     queryKey: ['payrollEntries', employee, month, year],
     queryFn: async () => {
       if (!employee) return [];
-      return base44.entities.TimeEntry.filter({ created_by: employee }, "-date");
+      return base44.entities.TimeEntry.filter({ employee_email: employee }, "-date");
     },
     enabled: !!employee,
     initialData: [],
