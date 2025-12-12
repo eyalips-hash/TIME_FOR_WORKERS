@@ -35,6 +35,20 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     }
   }, [isAdmin, entry, users]);
 
+  // המרת תאריך מ-YYYY-MM-DD ל-DD/MM/YYYY
+  const formatDateForDisplay = (dateStr) => {
+    if (!dateStr) return '';
+    const [year, month, day] = dateStr.split('-');
+    return `${day}/${month}/${year}`;
+  };
+
+  // המרת תאריך מ-DD/MM/YYYY ל-YYYY-MM-DD
+  const formatDateForStorage = (displayDate) => {
+    if (!displayDate) return '';
+    const [day, month, year] = displayDate.split('/');
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  };
+
   const [formData, setFormData] = React.useState({
     employee_email: entry?.employee_email || "",
     date: entry?.date || new Date().toISOString().split('T')[0],
@@ -45,16 +59,32 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     status: entry?.status || "pending",
   });
 
+  const [displayDate, setDisplayDate] = React.useState(
+    formatDateForDisplay(entry?.date || new Date().toISOString().split('T')[0])
+  );
+
   const [weekendWarning, setWeekendWarning] = React.useState(false);
 
-  React.useEffect(() => {
-    if (formData.date) {
-      const [year, month, day] = formData.date.split('-').map(Number);
-      const selectedDate = new Date(year, month - 1, day);
-      const dayOfWeek = selectedDate.getDay();
-      setWeekendWarning(dayOfWeek === 5 || dayOfWeek === 6);
+  const handleDateChange = (e) => {
+    const value = e.target.value.replace(/[^\d\/]/g, ''); // רק מספרים ו-/
+    setDisplayDate(value);
+    
+    // אם התאריך שלם (DD/MM/YYYY)
+    if (value.length === 10 && value.split('/').length === 3) {
+      const storageDate = formatDateForStorage(value);
+      if (storageDate && storageDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        setFormData({...formData, date: storageDate});
+        
+        // בדיקה אם סוף שבוע
+        const [day, month, year] = value.split('/').map(Number);
+        if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+          const selectedDate = new Date(year, month - 1, day);
+          const dayOfWeek = selectedDate.getDay();
+          setWeekendWarning(dayOfWeek === 5 || dayOfWeek === 6);
+        }
+      }
     }
-  }, [formData.date]);
+  };
 
   const calculateHours = () => {
     const [startHour, startMin] = formData.start_time.split(':').map(Number);
@@ -111,16 +141,18 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
               <Label className="text-slate-700 font-semibold mb-2 block">תאריך</Label>
               <div className="relative">
                 <Input
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => setFormData({...formData, date: e.target.value})}
+                  type="text"
+                  value={displayDate}
+                  onChange={handleDateChange}
+                  placeholder="DD/MM/YYYY"
                   required
+                  maxLength={10}
                   className="h-12 text-base"
                   dir="ltr"
                 />
                 {formData.date && (
                   <p className="text-sm text-slate-600 mt-1">
-                    {format(new Date(formData.date + 'T00:00:00'), "dd/MM/yyyy - EEEE", { locale: he })}
+                    {format(new Date(formData.date + 'T00:00:00'), "EEEE", { locale: he })}
                   </p>
                 )}
               </div>
