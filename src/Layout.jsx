@@ -69,7 +69,7 @@ export default function Layout({ children, currentPageName }) {
     <div className="min-h-screen flex bg-gradient-to-br from-slate-50 to-blue-50" dir="rtl">
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 right-0 h-full w-72 bg-white border-l border-slate-200 shadow-xl z-50
+        fixed top-0 right-0 h-full w-72 bg-white border-l border-slate-200 shadow-xl z-[100]
         transform transition-transform duration-300 ease-in-out
         md:translate-x-0 md:static
         ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}
@@ -154,7 +154,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Overlay for mobile */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 z-[90] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -162,7 +162,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header */}
-        <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 px-6 py-4 md:hidden shadow-sm sticky top-0 z-30">
+        <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 px-6 py-4 md:hidden shadow-sm sticky top-0 z-10">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold text-slate-900">מערכת שעות</h1>
             <Button
