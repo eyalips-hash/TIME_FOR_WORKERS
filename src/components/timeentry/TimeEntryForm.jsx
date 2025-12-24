@@ -17,6 +17,8 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
   React.useEffect(() => {
     if (!currentUser) {
       base44.auth.me().then(setUser);
+    } else {
+      setUser(currentUser);
     }
   }, [currentUser]);
 
@@ -28,7 +30,7 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
   });
 
   const [formData, setFormData] = React.useState({
-    employee_email: entry?.employee_email || (isAdmin ? "" : currentUser?.email || ""),
+    employee_email: entry?.employee_email || "",
     date: entry?.date || new Date().toISOString().split('T')[0],
     start_time: entry?.start_time || "09:00",
     end_time: entry?.end_time || "17:00",
@@ -36,6 +38,13 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     notes: entry?.notes || "",
     status: entry?.status || "pending",
   });
+
+  // הגדר employee_email כשה-user נטען (עבור עובדים רגילים)
+  React.useEffect(() => {
+    if (!isAdmin && user?.email && !entry) {
+      setFormData(prev => ({...prev, employee_email: user.email}));
+    }
+  }, [user, isAdmin, entry]);
 
   // הגדר אנדרי כברירת מחדל למנהלים
   React.useEffect(() => {
@@ -45,14 +54,7 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
         setFormData(prev => ({...prev, employee_email: andrey.email}));
       }
     }
-  }, [isAdmin, entry, users]);
-
-  // עדכן employee_email עבור עובדים כשה-user נטען
-  React.useEffect(() => {
-    if (!isAdmin && user?.email && !entry && !formData.employee_email) {
-      setFormData(prev => ({...prev, employee_email: user.email}));
-    }
-  }, [user, isAdmin, entry]);
+  }, [isAdmin, entry, users, formData.employee_email]);
 
   const [weekendWarning, setWeekendWarning] = React.useState(false);
 

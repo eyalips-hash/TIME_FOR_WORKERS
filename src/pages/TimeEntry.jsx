@@ -28,7 +28,7 @@ export default function TimeEntryPage() {
     enabled: isAdmin,
   });
 
-  const { data: existingEntries } = useQuery({
+  const { data: existingEntries, isLoading: entriesLoading } = useQuery({
     queryKey: ['myTimeEntries', user?.email],
     queryFn: async () => {
       if (!user?.email) return [];
