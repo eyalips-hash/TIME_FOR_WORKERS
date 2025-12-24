@@ -149,6 +149,7 @@ export default function MyHoursPage() {
               onSubmit={handleUpdate}
               onCancel={() => setEditingEntry(null)}
               isSubmitting={updateMutation.isPending}
+              currentUser={user}
             />
           </div>
         )}

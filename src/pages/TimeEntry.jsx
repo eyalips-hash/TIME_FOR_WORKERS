@@ -128,6 +128,7 @@ export default function TimeEntryPage() {
           onSubmit={handleSubmit}
           isSubmitting={createEntryMutation.isPending}
           isAdmin={isAdmin}
+          currentUser={user}
         />
       </div>
     </div>

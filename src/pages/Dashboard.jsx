@@ -24,6 +24,11 @@ export default function DashboardPage() {
   const [deleteId, setDeleteId] = React.useState(null);
   const [editingEntry, setEditingEntry] = React.useState(null);
   const [selectedEmployee, setSelectedEmployee] = React.useState("all");
+  const [user, setUser] = React.useState(null);
+
+  React.useEffect(() => {
+    base44.auth.me().then(setUser);
+  }, []);
 
   const { data: allEntries, isLoading } = useQuery({
     queryKey: ['allTimeEntries'],
@@ -210,6 +215,7 @@ export default function DashboardPage() {
               onCancel={() => setEditingEntry(null)}
               isSubmitting={updateMutation.isPending}
               isAdmin={true}
+              currentUser={user}
             />
           </div>
         )}

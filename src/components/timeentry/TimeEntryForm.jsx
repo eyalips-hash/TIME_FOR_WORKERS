@@ -11,12 +11,14 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 
-export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting, isAdmin }) {
-  const [user, setUser] = React.useState(null);
+export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting, isAdmin, currentUser }) {
+  const [user, setUser] = React.useState(currentUser || null);
 
   React.useEffect(() => {
-    base44.auth.me().then(setUser);
-  }, []);
+    if (!currentUser) {
+      base44.auth.me().then(setUser);
+    }
+  }, [currentUser]);
 
   const { data: users } = useQuery({
     queryKey: ['users'],
