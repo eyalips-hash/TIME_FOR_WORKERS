@@ -38,7 +38,7 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
   }, [isAdmin, entry, users]);
 
   const [formData, setFormData] = React.useState({
-    employee_email: entry?.employee_email || "",
+    employee_email: entry?.employee_email || (isAdmin ? "" : user?.email || ""),
     date: entry?.date || new Date().toISOString().split('T')[0],
     start_time: entry?.start_time || "09:00",
     end_time: entry?.end_time || "17:00",
@@ -46,6 +46,13 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     notes: entry?.notes || "",
     status: entry?.status || "pending",
   });
+
+  // עדכן employee_email עבור עובדים כשה-user נטען
+  React.useEffect(() => {
+    if (!isAdmin && user?.email && !entry) {
+      setFormData(prev => ({...prev, employee_email: user.email}));
+    }
+  }, [user, isAdmin, entry]);
 
   const [weekendWarning, setWeekendWarning] = React.useState(false);
 
