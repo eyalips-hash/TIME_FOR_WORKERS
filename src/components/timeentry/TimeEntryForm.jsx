@@ -27,6 +27,16 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     enabled: isAdmin,
   });
 
+  const [formData, setFormData] = React.useState({
+    employee_email: entry?.employee_email || (isAdmin ? "" : currentUser?.email || ""),
+    date: entry?.date || new Date().toISOString().split('T')[0],
+    start_time: entry?.start_time || "09:00",
+    end_time: entry?.end_time || "17:00",
+    break_minutes: entry?.break_minutes || 0,
+    notes: entry?.notes || "",
+    status: entry?.status || "pending",
+  });
+
   // הגדר אנדרי כברירת מחדל למנהלים
   React.useEffect(() => {
     if (isAdmin && !entry && !formData.employee_email && users && users.length > 0) {
@@ -37,19 +47,9 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     }
   }, [isAdmin, entry, users]);
 
-  const [formData, setFormData] = React.useState({
-    employee_email: entry?.employee_email || (isAdmin ? "" : user?.email || ""),
-    date: entry?.date || new Date().toISOString().split('T')[0],
-    start_time: entry?.start_time || "09:00",
-    end_time: entry?.end_time || "17:00",
-    break_minutes: entry?.break_minutes || 0,
-    notes: entry?.notes || "",
-    status: entry?.status || "pending",
-  });
-
   // עדכן employee_email עבור עובדים כשה-user נטען
   React.useEffect(() => {
-    if (!isAdmin && user?.email && !entry) {
+    if (!isAdmin && user?.email && !entry && !formData.employee_email) {
       setFormData(prev => ({...prev, employee_email: user.email}));
     }
   }, [user, isAdmin, entry]);
