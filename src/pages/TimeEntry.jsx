@@ -32,7 +32,7 @@ export default function TimeEntryPage() {
     queryKey: ['myTimeEntries', user?.email],
     queryFn: async () => {
       if (!user?.email) return [];
-      return base44.entities.TimeEntry.list();
+      return base44.entities.TimeEntry.filter({ employee_email: user.email });
     },
     enabled: !!user?.email,
     initialData: [],

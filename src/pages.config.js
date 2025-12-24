@@ -1,23 +1,23 @@
-import TimeEntry from './pages/TimeEntry';
-import MyHours from './pages/MyHours';
-import Dashboard from './pages/Dashboard';
-import PayrollReportPage from './pages/PayrollReportPage';
-import ManageUsers from './pages/ManageUsers';
 import Approvals from './pages/Approvals';
-import Reports from './pages/Reports';
+import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
+import ManageUsers from './pages/ManageUsers';
+import MyHours from './pages/MyHours';
+import PayrollReportPage from './pages/PayrollReportPage';
+import Reports from './pages/Reports';
+import TimeEntry from './pages/TimeEntry';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "TimeEntry": TimeEntry,
-    "MyHours": MyHours,
-    "Dashboard": Dashboard,
-    "PayrollReportPage": PayrollReportPage,
-    "ManageUsers": ManageUsers,
     "Approvals": Approvals,
-    "Reports": Reports,
+    "Dashboard": Dashboard,
     "Home": Home,
+    "ManageUsers": ManageUsers,
+    "MyHours": MyHours,
+    "PayrollReportPage": PayrollReportPage,
+    "Reports": Reports,
+    "TimeEntry": TimeEntry,
 }
 
 export const pagesConfig = {
