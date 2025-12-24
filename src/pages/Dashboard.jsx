@@ -83,6 +83,7 @@ export default function DashboardPage() {
     mutationFn: ({ id, data }) => base44.entities.TimeEntry.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allTimeEntries'] });
+      queryClient.invalidateQueries({ queryKey: ['myTimeEntries'] });
       setEditingEntry(null);
     },
   });
