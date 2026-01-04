@@ -47,8 +47,13 @@ export default function ReportsPage() {
   });
 
   const employees = React.useMemo(() => {
-    return [...new Set(entries.map(e => e.created_by))];
-  }, [entries]);
+    const employeeEmails = [...new Set(entries.map(e => e.employee_email).filter(Boolean))];
+    // סנן מנהלים מרשימת העובדים
+    return employeeEmails.filter(email => {
+      const employeeUser = users?.find(u => u.email === email);
+      return employeeUser?.role !== 'admin';
+    });
+  }, [entries, users]);
 
   const usersByEmail = React.useMemo(() => {
     const map = {};
