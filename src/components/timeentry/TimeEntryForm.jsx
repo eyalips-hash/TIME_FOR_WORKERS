@@ -29,15 +29,22 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     enabled: isAdmin,
   });
 
-  // קבע ערך ראשוני
-  const getInitialEmail = () => {
-    if (entry?.employee_email) return entry.employee_email;
-    if (!isAdmin && user?.email) return user.email;
+  // קביעת employee_email ראשוני
+  const getInitialEmployeeEmail = () => {
+    // אם זו עריכה - החזר את העובד המקורי
+    if (entry?.employee_email) {
+      return entry.employee_email;
+    }
+    // אם זה לא מנהל - החזר את המייל של המשתמש הנוכחי
+    if (!isAdmin && user?.email) {
+      return user.email;
+    }
+    // אם זה מנהל ולא עריכה - ריק (חייב לבחור)
     return "";
   };
 
   const [formData, setFormData] = React.useState({
-    employee_email: getInitialEmail(),
+    employee_email: getInitialEmployeeEmail(),
     date: entry?.date || new Date().toISOString().split('T')[0],
     start_time: entry?.start_time || "09:00",
     end_time: entry?.end_time || "17:00",
@@ -46,18 +53,12 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     status: entry?.status || "pending",
   });
 
-  const [hasSetInitialEmployee, setHasSetInitialEmployee] = React.useState(false);
-
-  // הגדר אנדרי כברירת מחדל למנהלים רק פעם אחת
+  // עדכן employee_email רק אם זה עובד רגיל והמידע עדיין לא הוגדר
   React.useEffect(() => {
-    if (isAdmin && !entry && !formData.employee_email && !hasSetInitialEmployee && users && users.length > 0) {
-      const andrey = users.find(u => u.role !== 'admin' && (u.full_name?.includes("אנדרי") || u.email?.includes("andrey")));
-      if (andrey) {
-        setFormData(prev => ({...prev, employee_email: andrey.email}));
-        setHasSetInitialEmployee(true);
-      }
+    if (!isAdmin && user?.email && !formData.employee_email) {
+      setFormData(prev => ({...prev, employee_email: user.email}));
     }
-  }, [isAdmin, entry, users, formData.employee_email, hasSetInitialEmployee]);
+  }, [user, isAdmin, formData.employee_email]);
 
   const [weekendWarning, setWeekendWarning] = React.useState(false);
 
@@ -83,10 +84,30 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // וידוא שיש employee_email
+    if (!formData.employee_email) {
+      alert("חובה לבחור עובד");
+      return;
+    }
+
     const totalHours = parseFloat(calculateHours());
-    const submitData = { ...formData, total_hours: totalHours };
+    const submitData = {
+      employee_email: formData.employee_email,
+      date: formData.date,
+      start_time: formData.start_time,
+      end_time: formData.end_time,
+      break_minutes: formData.break_minutes,
+      notes: formData.notes,
+      status: formData.status,
+      total_hours: totalHours
+    };
     
     onSubmit(submitData);
+  };
+
+  const handleEmployeeChange = (value) => {
+    setFormData(prev => ({...prev, employee_email: value}));
   };
 
   return (
@@ -95,14 +116,16 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
         <form onSubmit={handleSubmit} className="space-y-6">
           {isAdmin && (
             <div>
-              <Label className="text-slate-700 font-semibold mb-2 block">בחר עובד</Label>
+              <Label className="text-slate-700 font-semibold mb-2 block">
+                בחר עובד <span className="text-red-500">*</span>
+              </Label>
               <Select 
                 value={formData.employee_email} 
-                onValueChange={(value) => setFormData(prev => ({...prev, employee_email: value}))}
+                onValueChange={handleEmployeeChange}
                 required
               >
                 <SelectTrigger className="h-12 text-base">
-                  <SelectValue placeholder="בחר עובד" />
+                  <SelectValue placeholder="בחר עובד לדיווח" />
                 </SelectTrigger>
                 <SelectContent>
                   {users?.filter(u => u.role !== 'admin').map((u) => (
@@ -112,6 +135,9 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-sm text-slate-500 mt-2">
+                העובד הנבחר: {users?.find(u => u.email === formData.employee_email)?.full_name || formData.employee_email || "לא נבחר"}
+              </p>
             </div>
           )}
           
@@ -201,7 +227,7 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
           <div className="flex gap-4 pt-4">
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || (isAdmin && !formData.employee_email)}
               className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 h-12 text-base font-semibold shadow-lg"
             >
               {isSubmitting ? "שומר..." : (entry ? "עדכן דיווח" : "שמור דיווח")}
