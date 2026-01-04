@@ -95,7 +95,7 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
               <Label className="text-slate-700 font-semibold mb-2 block">בחר עובד</Label>
               <Select 
                 value={formData.employee_email} 
-                onValueChange={(value) => setFormData({...formData, employee_email: value})}
+                onValueChange={(value) => setFormData(prev => ({...prev, employee_email: value}))}
                 required
               >
                 <SelectTrigger className="h-12 text-base">
@@ -119,7 +119,7 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
                 <Input
                   type="date"
                   value={formData.date}
-                  onChange={(e) => setFormData({...formData, date: e.target.value})}
+                  onChange={(e) => setFormData(prev => ({...prev, date: e.target.value}))}
                   required
                   className="h-12 text-base"
                 />
@@ -140,7 +140,7 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
               <Input
                 type="number"
                 value={formData.break_minutes}
-                onChange={(e) => setFormData({...formData, break_minutes: Number(e.target.value)})}
+                onChange={(e) => setFormData(prev => ({...prev, break_minutes: Number(e.target.value)}))}
                 min="0"
                 className="h-12 text-base"
               />
@@ -153,7 +153,7 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
               <Input
                 type="time"
                 value={formData.start_time}
-                onChange={(e) => setFormData({...formData, start_time: e.target.value})}
+                onChange={(e) => setFormData(prev => ({...prev, start_time: e.target.value}))}
                 required
                 className="h-12 text-base"
               />
@@ -163,7 +163,7 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
               <Input
                 type="time"
                 value={formData.end_time}
-                onChange={(e) => setFormData({...formData, end_time: e.target.value})}
+                onChange={(e) => setFormData(prev => ({...prev, end_time: e.target.value}))}
                 required
                 className="h-12 text-base"
               />
@@ -189,7 +189,7 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
             <Label className="text-slate-700 font-semibold mb-2 block">הערות</Label>
             <Textarea
               value={formData.notes}
-              onChange={(e) => setFormData({...formData, notes: e.target.value})}
+              onChange={(e) => setFormData(prev => ({...prev, notes: e.target.value}))}
               placeholder="הוסף הערות או פרטים נוספים..."
               className="h-24 text-base resize-none"
             />
