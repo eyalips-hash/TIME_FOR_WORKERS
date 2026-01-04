@@ -51,8 +51,13 @@ export default function DashboardPage() {
   }, [users]);
 
   const employees = React.useMemo(() => {
-    return [...new Set(allEntries.map(e => e.employee_email).filter(Boolean))];
-  }, [allEntries]);
+    const employeeEmails = [...new Set(allEntries.map(e => e.employee_email).filter(Boolean))];
+    // סנן מנהלים מרשימת העובדים
+    return employeeEmails.filter(email => {
+      const employeeUser = users?.find(u => u.email === email);
+      return employeeUser?.role !== 'admin';
+    });
+  }, [allEntries, users]);
 
   // הגדר את אנדרי כברירת מחדל ברנדור הראשון
   React.useEffect(() => {

@@ -107,7 +107,7 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
                   <SelectValue placeholder="בחר עובד" />
                 </SelectTrigger>
                 <SelectContent>
-                  {users?.map((u) => (
+                  {users?.filter(u => u.role !== 'admin').map((u) => (
                     <SelectItem key={u.email} value={u.email}>
                       {u.full_name || u.email}
                     </SelectItem>

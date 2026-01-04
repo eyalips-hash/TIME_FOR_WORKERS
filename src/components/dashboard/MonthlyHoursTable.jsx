@@ -57,14 +57,18 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
     entries?.forEach(entry => {
       const entryDate = new Date(entry.date);
       if (entryDate >= monthStart && entryDate <= monthEnd && entry.employee_email) {
-        if (!grouped[entry.employee_email]) {
-          grouped[entry.employee_email] = [];
+        // סנן מנהלים
+        const employeeUser = users?.find(u => u.email === entry.employee_email);
+        if (employeeUser?.role !== 'admin') {
+          if (!grouped[entry.employee_email]) {
+            grouped[entry.employee_email] = [];
+          }
+          grouped[entry.employee_email].push(entry);
         }
-        grouped[entry.employee_email].push(entry);
       }
     });
     return grouped;
-  }, [entries, monthStart, monthEnd]);
+  }, [entries, monthStart, monthEnd, users]);
 
   const totalHours = React.useMemo(() => {
     return entries

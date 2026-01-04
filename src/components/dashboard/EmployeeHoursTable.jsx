@@ -49,7 +49,14 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
     return map;
   }, [users]);
   
-  const employees = [...new Set(entries.map(e => e.employee_email).filter(Boolean))];
+  const employees = React.useMemo(() => {
+    const employeeEmails = [...new Set(entries.map(e => e.employee_email).filter(Boolean))];
+    // סנן מנהלים מרשימת העובדים
+    return employeeEmails.filter(email => {
+      const employeeUser = users?.find(u => u.email === email);
+      return employeeUser?.role !== 'admin';
+    });
+  }, [entries, users]);
 
   const handleGenerateReportClick = (employee) => {
     setSelectedEmployee(employee);
