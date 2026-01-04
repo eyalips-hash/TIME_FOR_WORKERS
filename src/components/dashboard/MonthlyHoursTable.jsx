@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronLeft, ChevronRight, Calendar, CheckCircle, XCircle, Clock, Pencil, Trash2 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
 import { he } from "date-fns/locale";
@@ -15,7 +16,7 @@ const statusConfig = {
   rejected: { label: "נדחה", color: "bg-red-100 text-red-800", icon: XCircle },
 };
 
-export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onDelete }) {
+export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onDelete, selectedEntries, onSelectEntry, onSelectAll }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const monthStart = startOfMonth(currentMonth);
@@ -172,6 +173,14 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-slate-50">
+                      {onSelectEntry && (
+                        <TableHead className="w-12">
+                          <Checkbox
+                            checked={selectedEntries?.length > 0 && employeeEntries.filter(e => e.status === 'pending').every(e => selectedEntries.some(se => se.id === e.id))}
+                            onCheckedChange={onSelectAll}
+                          />
+                        </TableHead>
+                      )}
                       <TableHead className="text-right font-bold w-32">תאריך</TableHead>
                       <TableHead className="text-right font-bold">יום</TableHead>
                       <TableHead className="text-right font-bold">שעות</TableHead>
@@ -197,9 +206,20 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
                             ${isToday ? "bg-blue-50 border-r-4 border-blue-500" : ""}
                             ${isWeekend ? "bg-slate-50" : ""}
                             ${entry ? "hover:bg-slate-50" : ""}
+                            ${selectedEntries?.some(e => e.id === entry?.id) ? "bg-purple-50" : ""}
                             transition-colors
                           `}
                         >
+                          {onSelectEntry && (
+                            <TableCell>
+                              {entry && entry.status === 'pending' && !isMonthClosed(entry) && (
+                                <Checkbox
+                                  checked={selectedEntries?.some(e => e.id === entry.id)}
+                                  onCheckedChange={() => onSelectEntry(entry.id)}
+                                />
+                              )}
+                            </TableCell>
+                          )}
                           <TableCell className="font-semibold">
                             <div className="flex items-center gap-2">
                               {isToday && (

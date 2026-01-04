@@ -2,6 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { Clock, Calendar, CheckCircle, XCircle, AlertCircle, Pencil, Trash2 } from "lucide-react";
@@ -27,7 +28,7 @@ const statusConfig = {
   },
 };
 
-export default function TimeEntryList({ entries, isLoading, onEdit, onDelete }) {
+export default function TimeEntryList({ entries, isLoading, onEdit, onDelete, selectedEntries, onSelectEntry }) {
   const { data: users } = useQuery({
     queryKey: ['users'],
     queryFn: () => base44.entities.User.list(),
@@ -76,10 +77,16 @@ export default function TimeEntryList({ entries, isLoading, onEdit, onDelete }) 
         const canEdit = entry.status === "pending";
         
         return (
-          <Card key={entry.id} className="shadow-md border-0 bg-white/90 backdrop-blur hover:shadow-xl transition-all duration-300">
+          <Card key={entry.id} className={`shadow-md border-0 bg-white/90 backdrop-blur hover:shadow-xl transition-all duration-300 ${selectedEntries?.some(e => e.id === entry.id) ? 'ring-2 ring-purple-500 bg-purple-50/50' : ''}`}>
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
+                  {onSelectEntry && canEdit && (
+                    <Checkbox
+                      checked={selectedEntries?.some(e => e.id === entry.id)}
+                      onCheckedChange={() => onSelectEntry(entry.id)}
+                    />
+                  )}
                   <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
                     <Calendar className="w-6 h-6 text-blue-600" />
                   </div>
