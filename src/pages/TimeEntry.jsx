@@ -63,14 +63,19 @@ export default function TimeEntryPage() {
   });
 
   const handleSubmit = (data) => {
-    const employeeEmail = data.employee_email || user?.email;
+    // אם אין employee_email (לא אמור לקרות), דווח שגיאה
+    if (!data.employee_email) {
+      setError("חובה לבחור עובד");
+      return;
+    }
+
     const entryDate = new Date(data.date);
     const entryMonth = entryDate.getMonth();
     const entryYear = entryDate.getFullYear();
 
     // בדיקה שהחודש לא סגור
     const isMonthClosed = closedMonths?.some(
-      cm => cm.employee === employeeEmail && cm.month === entryMonth && cm.year === entryYear
+      cm => cm.employee === data.employee_email && cm.month === entryMonth && cm.year === entryYear
     );
 
     if (isMonthClosed) {
@@ -80,7 +85,7 @@ export default function TimeEntryPage() {
 
     // בדיקה שאין דיווח כפול לאותו יום
     const dateExists = existingEntries?.some(
-      entry => entry.date === data.date && entry.employee_email === employeeEmail
+      entry => entry.date === data.date && entry.employee_email === data.employee_email
     );
     
     if (dateExists) {
