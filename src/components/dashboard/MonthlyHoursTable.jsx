@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronLeft, ChevronRight, Calendar, CheckCircle, XCircle, Clock, Pencil, Trash2 } from "lucide-react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO, isWithinInterval } from "date-fns";
 import { he } from "date-fns/locale";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -55,8 +55,8 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
   const entriesByEmployee = React.useMemo(() => {
     const grouped = {};
     entries?.forEach(entry => {
-      const entryDate = new Date(entry.date);
-      if (entryDate >= monthStart && entryDate <= monthEnd && entry.employee_email) {
+      const entryDate = parseISO(entry.date);
+      if (isWithinInterval(entryDate, { start: monthStart, end: monthEnd }) && entry.employee_email) {
         // סנן מנהלים
         const employeeUser = users?.find(u => u.email === entry.employee_email);
         if (employeeUser?.role !== 'admin') {
@@ -73,8 +73,8 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
   const totalHours = React.useMemo(() => {
     return entries
       ?.filter(entry => {
-        const entryDate = new Date(entry.date);
-        return entryDate >= monthStart && entryDate <= monthEnd && entry.employee_email;
+        const entryDate = parseISO(entry.date);
+        return isWithinInterval(entryDate, { start: monthStart, end: monthEnd }) && entry.employee_email;
       })
       .reduce((sum, entry) => sum + (entry.total_hours || 0), 0) || 0;
   }, [entries, monthStart, monthEnd]);
@@ -82,8 +82,8 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
   const approvedHours = React.useMemo(() => {
     return entries
       ?.filter(entry => {
-        const entryDate = new Date(entry.date);
-        return entryDate >= monthStart && entryDate <= monthEnd && entry.status === "approved" && entry.employee_email;
+        const entryDate = parseISO(entry.date);
+        return isWithinInterval(entryDate, { start: monthStart, end: monthEnd }) && entry.status === "approved" && entry.employee_email;
       })
       .reduce((sum, entry) => sum + (entry.total_hours || 0), 0) || 0;
   }, [entries, monthStart, monthEnd]);
