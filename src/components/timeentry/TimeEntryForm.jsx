@@ -85,15 +85,20 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // וידוא שיש employee_email
-    if (!formData.employee_email) {
-      alert("חובה לבחור עובד");
-      return;
+    // וידוא שיש employee_email - רק למנהלים
+    let employeeEmail = formData.employee_email;
+    if (!employeeEmail) {
+      if (isAdmin) {
+        alert("חובה לבחור עובד");
+        return;
+      }
+      // לעובד רגיל - השתמש במייל שלו
+      employeeEmail = user?.email;
     }
 
     const totalHours = parseFloat(calculateHours());
     const submitData = {
-      employee_email: formData.employee_email,
+      employee_email: employeeEmail,
       date: formData.date,
       start_time: formData.start_time,
       end_time: formData.end_time,
