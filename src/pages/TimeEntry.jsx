@@ -63,10 +63,13 @@ export default function TimeEntryPage() {
   });
 
   const handleSubmit = (data) => {
-    // אם אין employee_email (לא אמור לקרות), דווח שגיאה
+    // אם אין employee_email, השתמש במשתמש הנוכחי (לעובדים רגילים)
     if (!data.employee_email) {
-      setError("חובה לבחור עובד");
-      return;
+      if (isAdmin) {
+        setError("חובה לבחור עובד");
+        return;
+      }
+      data.employee_email = user?.email;
     }
 
     const entryDate = new Date(data.date);
