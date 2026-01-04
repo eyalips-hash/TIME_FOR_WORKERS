@@ -29,21 +29,6 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     enabled: isAdmin,
   });
 
-  // קבע employee_email ראשוני
-  const getInitialEmployeeEmail = () => {
-    if (entry?.employee_email) {
-      return entry.employee_email;
-    }
-    if (!isAdmin && user?.email) {
-      return user.email;
-    }
-    if (isAdmin && users && users.length > 0) {
-      const andrey = users.find(u => u.role !== 'admin' && (u.full_name?.includes("אנדרי") || u.email?.includes("andrey")));
-      return andrey?.email || "";
-    }
-    return "";
-  };
-
   // קבע ערך ראשוני
   const getInitialEmail = () => {
     if (entry?.employee_email) return entry.employee_email;
