@@ -39,22 +39,26 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     status: entry?.status || "pending",
   });
 
+  const [initialized, setInitialized] = React.useState(false);
+
   // הגדר employee_email כשה-user נטען (עבור עובדים רגילים)
   React.useEffect(() => {
-    if (!isAdmin && user?.email && !entry) {
+    if (!isAdmin && user?.email && !entry && !initialized) {
       setFormData(prev => ({...prev, employee_email: user.email}));
+      setInitialized(true);
     }
-  }, [user, isAdmin, entry]);
+  }, [user, isAdmin, entry, initialized]);
 
   // הגדר אנדרי כברירת מחדל למנהלים
   React.useEffect(() => {
-    if (isAdmin && !entry && !formData.employee_email && users && users.length > 0) {
+    if (isAdmin && !entry && !initialized && users && users.length > 0) {
       const andrey = users.find(u => u.full_name?.includes("אנדרי") || u.email?.includes("andrey"));
       if (andrey) {
         setFormData(prev => ({...prev, employee_email: andrey.email}));
+        setInitialized(true);
       }
     }
-  }, [isAdmin, entry, users, formData.employee_email]);
+  }, [isAdmin, entry, users, initialized]);
 
   const [weekendWarning, setWeekendWarning] = React.useState(false);
 
