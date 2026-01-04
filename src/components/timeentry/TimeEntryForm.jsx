@@ -44,8 +44,15 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     return "";
   };
 
+  // קבע ערך ראשוני
+  const getInitialEmail = () => {
+    if (entry?.employee_email) return entry.employee_email;
+    if (!isAdmin && user?.email) return user.email;
+    return "";
+  };
+
   const [formData, setFormData] = React.useState({
-    employee_email: "",
+    employee_email: getInitialEmail(),
     date: entry?.date || new Date().toISOString().split('T')[0],
     start_time: entry?.start_time || "09:00",
     end_time: entry?.end_time || "17:00",
@@ -54,15 +61,18 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     status: entry?.status || "pending",
   });
 
-  // עדכן employee_email רק פעם אחת כשהמידע מוכן
+  const [hasSetInitialEmployee, setHasSetInitialEmployee] = React.useState(false);
+
+  // הגדר אנדרי כברירת מחדל למנהלים רק פעם אחת
   React.useEffect(() => {
-    if (!formData.employee_email) {
-      const initialEmail = getInitialEmployeeEmail();
-      if (initialEmail) {
-        setFormData(prev => ({...prev, employee_email: initialEmail}));
+    if (isAdmin && !entry && !formData.employee_email && !hasSetInitialEmployee && users && users.length > 0) {
+      const andrey = users.find(u => u.role !== 'admin' && (u.full_name?.includes("אנדרי") || u.email?.includes("andrey")));
+      if (andrey) {
+        setFormData(prev => ({...prev, employee_email: andrey.email}));
+        setHasSetInitialEmployee(true);
       }
     }
-  }, [user, users, isAdmin, entry]);
+  }, [isAdmin, entry, users, formData.employee_email, hasSetInitialEmployee]);
 
   const [weekendWarning, setWeekendWarning] = React.useState(false);
 
