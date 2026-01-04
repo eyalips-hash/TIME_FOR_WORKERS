@@ -64,7 +64,7 @@ export default function MyHoursPage() {
   const bulkUpdateMutation = useMutation({
     mutationFn: async (updates) => {
       const promises = selectedEntries.map(entry => {
-        const entryData = { ...entry, ...updates };
+        const updateData = { ...updates };
         
         // חישוב מחדש של total_hours אם יש שינוי בזמנים
         if (updates.start_time || updates.end_time || updates.break_minutes !== undefined) {
@@ -77,10 +77,10 @@ export default function MyHoursPage() {
           const startMinutes = startHour * 60 + startMin;
           const endMinutes = endHour * 60 + endMin;
           const workMinutes = endMinutes - startMinutes - breakMinutes;
-          entryData.total_hours = parseFloat((workMinutes / 60).toFixed(2));
+          updateData.total_hours = parseFloat((workMinutes / 60).toFixed(2));
         }
         
-        return base44.entities.TimeEntry.update(entry.id, entryData);
+        return base44.entities.TimeEntry.update(entry.id, updateData);
       });
       return Promise.all(promises);
     },
