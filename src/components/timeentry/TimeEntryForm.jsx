@@ -224,6 +224,25 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
             />
           </div>
 
+          {isAdmin && (
+            <div>
+              <Label className="text-slate-700 font-semibold mb-2 block">סטטוס</Label>
+              <Select 
+                value={formData.status} 
+                onValueChange={(value) => setFormData(prev => ({...prev, status: value}))}
+              >
+                <SelectTrigger className="h-12 text-base">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">ממתין לאישור</SelectItem>
+                  <SelectItem value="approved">מאושר</SelectItem>
+                  <SelectItem value="rejected">נדחה</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div className="flex gap-4 pt-4">
             <Button
               type="submit"
