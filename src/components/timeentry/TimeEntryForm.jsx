@@ -29,8 +29,23 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     enabled: isAdmin,
   });
 
+  // קבע employee_email ראשוני
+  const getInitialEmployeeEmail = () => {
+    if (entry?.employee_email) {
+      return entry.employee_email;
+    }
+    if (!isAdmin && user?.email) {
+      return user.email;
+    }
+    if (isAdmin && users && users.length > 0) {
+      const andrey = users.find(u => u.role !== 'admin' && (u.full_name?.includes("אנדרי") || u.email?.includes("andrey")));
+      return andrey?.email || "";
+    }
+    return "";
+  };
+
   const [formData, setFormData] = React.useState({
-    employee_email: entry?.employee_email || "",
+    employee_email: "",
     date: entry?.date || new Date().toISOString().split('T')[0],
     start_time: entry?.start_time || "09:00",
     end_time: entry?.end_time || "17:00",
@@ -39,26 +54,15 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     status: entry?.status || "pending",
   });
 
-  const [initialized, setInitialized] = React.useState(false);
-
-  // הגדר employee_email כשה-user נטען (עבור עובדים רגילים)
+  // עדכן employee_email רק פעם אחת כשהמידע מוכן
   React.useEffect(() => {
-    if (!isAdmin && user?.email && !entry && !initialized) {
-      setFormData(prev => ({...prev, employee_email: user.email}));
-      setInitialized(true);
-    }
-  }, [user, isAdmin, entry, initialized]);
-
-  // הגדר אנדרי כברירת מחדל למנהלים
-  React.useEffect(() => {
-    if (isAdmin && !entry && !initialized && users && users.length > 0) {
-      const andrey = users.find(u => u.full_name?.includes("אנדרי") || u.email?.includes("andrey"));
-      if (andrey) {
-        setFormData(prev => ({...prev, employee_email: andrey.email}));
-        setInitialized(true);
+    if (!formData.employee_email) {
+      const initialEmail = getInitialEmployeeEmail();
+      if (initialEmail) {
+        setFormData(prev => ({...prev, employee_email: initialEmail}));
       }
     }
-  }, [isAdmin, entry, users, initialized]);
+  }, [user, users, isAdmin, entry]);
 
   const [weekendWarning, setWeekendWarning] = React.useState(false);
 
