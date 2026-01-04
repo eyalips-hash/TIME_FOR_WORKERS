@@ -140,12 +140,12 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
             </div>
             <div className="bg-purple-50 rounded-xl p-4 border-r-4 border-purple-500">
               <p className="text-sm text-purple-600 mb-1">ימי עבודה</p>
-              <p className="text-3xl font-bold text-purple-900">
-                {entries?.filter(e => {
-                  const entryDate = new Date(e.date);
-                  return entryDate >= monthStart && entryDate <= monthEnd && e.employee_email;
-                }).length || 0}
-              </p>
+                <p className="text-3xl font-bold text-purple-900">
+                  {entries?.filter(e => {
+                    const entryDate = parseISO(e.date);
+                    return isWithinInterval(entryDate, { start: monthStart, end: monthEnd }) && e.employee_email;
+                  }).length || 0}
+                </p>
             </div>
           </div>
         </CardContent>
