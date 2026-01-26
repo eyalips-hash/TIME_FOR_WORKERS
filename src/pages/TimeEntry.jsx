@@ -149,12 +149,18 @@ export default function TimeEntryPage() {
           </div>
         )}
 
-        <TimeEntryForm
-          onSubmit={handleSubmit}
-          isSubmitting={createEntryMutation.isPending}
-          isAdmin={isAdmin}
-          currentUser={user}
-        />
+        {!user ? (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-8 text-center">
+            <p className="text-blue-900 font-semibold text-lg">טוען פרטי משתמש...</p>
+          </div>
+        ) : (
+          <TimeEntryForm
+            onSubmit={handleSubmit}
+            isSubmitting={createEntryMutation.isPending}
+            isAdmin={isAdmin}
+            currentUser={user}
+          />
+        )}
       </div>
     </div>
   );
