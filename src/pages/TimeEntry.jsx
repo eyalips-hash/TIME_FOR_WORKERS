@@ -138,6 +138,15 @@ export default function TimeEntryPage() {
           </div>
         )}
 
+        {user && (
+          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+            <p className="text-blue-900 font-semibold">פרטי משתמש:</p>
+            <p className="text-blue-700 text-sm">שם: {user.full_name}</p>
+            <p className="text-blue-700 text-sm">אימייל: {user.email}</p>
+            <p className="text-blue-700 text-sm">תפקיד: {user.role === 'admin' ? 'מנהל' : 'עובד'}</p>
+          </div>
+        )}
+
         <TimeEntryForm
           onSubmit={handleSubmit}
           isSubmitting={createEntryMutation.isPending}
