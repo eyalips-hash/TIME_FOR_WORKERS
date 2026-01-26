@@ -251,10 +251,10 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
           <div className="flex gap-4 pt-4">
             <Button
               type="submit"
-              disabled={isSubmitting || (isAdmin && !formData.employee_email) || (!isAdmin && !user?.email)}
+              disabled={isSubmitting || (isAdmin && !formData.employee_email)}
               className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 h-12 text-base font-semibold shadow-lg"
             >
-              {isSubmitting ? "שומר..." : (!isAdmin && !user?.email ? "טוען..." : (entry ? "עדכן דיווח" : "שמור דיווח"))}
+              {isSubmitting ? "שומר..." : (entry ? "עדכן דיווח" : "שמור דיווח")}
             </Button>
             {onCancel && (
               <Button
