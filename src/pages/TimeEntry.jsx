@@ -18,6 +18,8 @@ export default function TimeEntryPage() {
     base44.auth.me().then(u => {
       setUser(u);
       setIsAdmin(u?.role === 'admin');
+    }).catch(() => {
+      setError("שגיאה בטעינת פרטי משתמש");
     });
   }, []);
 
