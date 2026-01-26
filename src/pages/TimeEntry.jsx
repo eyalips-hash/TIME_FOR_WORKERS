@@ -64,12 +64,17 @@ export default function TimeEntryPage() {
 
   const handleSubmit = (data) => {
     // וידוא ש-employee_email קיים
-    if (!data.employee_email && !isAdmin) {
+    if (!data.employee_email) {
+      if (isAdmin) {
+        setError("חובה לבחור עובד");
+        return;
+      }
+      // לעובד רגיל - השתמש במייל שלו
       data = { ...data, employee_email: user?.email };
     }
 
     if (!data.employee_email) {
-      setError("חובה לבחור עובד");
+      setError("אנא המתן, טוען פרטי משתמש...");
       return;
     }
 
