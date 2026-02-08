@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Clock, BarChart3, Plus, LogOut, Menu, Users, CheckCircle, FileText } from "lucide-react";
+import { Clock, BarChart3, Plus, LogOut, Menu, Users, CheckCircle, FileText, Calendar } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
