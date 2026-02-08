@@ -295,7 +295,6 @@ export default function BulkTimeEntryPage() {
                           type="time"
                           value={dayData.start_time}
                           onChange={(e) => handleDayChange(dateKey, 'start_time', e.target.value)}
-                          disabled={!dayData.enabled}
                           className="h-10"
                         />
                         
@@ -303,7 +302,6 @@ export default function BulkTimeEntryPage() {
                           type="time"
                           value={dayData.end_time}
                           onChange={(e) => handleDayChange(dateKey, 'end_time', e.target.value)}
-                          disabled={!dayData.enabled}
                           className="h-10"
                         />
                         
@@ -311,7 +309,6 @@ export default function BulkTimeEntryPage() {
                           type="number"
                           value={dayData.break_minutes}
                           onChange={(e) => handleDayChange(dateKey, 'break_minutes', Number(e.target.value))}
-                          disabled={!dayData.enabled}
                           className="h-10"
                         />
                         
@@ -321,7 +318,6 @@ export default function BulkTimeEntryPage() {
                             value={dayData.notes}
                             onChange={(e) => handleDayChange(dateKey, 'notes', e.target.value)}
                             placeholder="הערות"
-                            disabled={!dayData.enabled}
                             className="h-10"
                           />
                         </div>
