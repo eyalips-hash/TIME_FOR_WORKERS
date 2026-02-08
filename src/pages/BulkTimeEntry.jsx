@@ -57,22 +57,38 @@ export default function BulkTimeEntryPage() {
     if (selectedEmployee) {
       const newEntries = {};
       daysInMonth.forEach(day => {
-        const dateKey = format(day, "yyyy-MM-dd");
-        const hasEntry = existingEntries?.some(e => e.date === dateKey);
+        const dayOfWeek = day.getDay();
+        // דלג על שישי ושבת
+        if (dayOfWeek === 5 || dayOfWeek === 6) return;
         
-        if (!hasEntry) {
+        const dateKey = format(day, "yyyy-MM-dd");
+        const existingEntry = existingEntries?.find(e => e.date === dateKey);
+        
+        if (existingEntry) {
+          // אם יש דיווח קיים - הצג אותו (ללא אפשרות עריכה)
+          newEntries[dateKey] = {
+            enabled: false,
+            start_time: existingEntry.start_time,
+            end_time: existingEntry.end_time,
+            break_minutes: existingEntry.break_minutes,
+            notes: existingEntry.notes || "",
+            hasExisting: true
+          };
+        } else {
+          // אם אין דיווח קיים - צור חדש
           newEntries[dateKey] = {
             enabled: false,
             start_time: "09:00",
             end_time: "17:00",
             break_minutes: 30,
-            notes: ""
+            notes: "",
+            hasExisting: false
           };
         }
       });
       setDayEntries(newEntries);
     }
-  }, [selectedEmployee, selectedMonth, selectedYear, existingEntries]);
+  }, [selectedEmployee, selectedMonth, selectedYear, existingEntries, daysInMonth]);
 
   const createBulkMutation = useMutation({
     mutationFn: async (entries) => {
@@ -265,13 +281,13 @@ export default function BulkTimeEntryPage() {
               <CardContent className="p-6">
                 <div className="space-y-3">
                   {daysInMonth.map(day => {
-                    const dateKey = format(day, "yyyy-MM-dd");
-                    const dayData = dayEntries[dateKey];
-                    const hasExisting = existingEntries?.some(e => e.date === dateKey);
                     const dayOfWeek = day.getDay();
                     
                     // לא להציג שישי ושבת
                     if (dayOfWeek === 5 || dayOfWeek === 6) return null;
+                    
+                    const dateKey = format(day, "yyyy-MM-dd");
+                    const dayData = dayEntries[dateKey];
                     
                     if (!dayData) return null;
 
@@ -279,6 +295,7 @@ export default function BulkTimeEntryPage() {
                       <div 
                         key={dateKey} 
                         className={`grid md:grid-cols-7 gap-4 items-center p-4 rounded-xl border-2 ${
+                          dayData.hasExisting ? 'bg-green-50 border-green-300' : 
                           dayData.enabled ? 'bg-blue-50 border-blue-200' : 'bg-slate-50 border-slate-200'
                         }`}
                       >
@@ -287,11 +304,15 @@ export default function BulkTimeEntryPage() {
                             type="checkbox"
                             checked={dayData.enabled}
                             onChange={(e) => handleDayChange(dateKey, 'enabled', e.target.checked)}
+                            disabled={dayData.hasExisting}
                             className="w-5 h-5"
                           />
                           <div>
                             <p className="font-bold text-slate-900">{format(day, "dd/MM/yyyy")}</p>
                             <p className="text-sm text-slate-600">{format(day, "EEEE", { locale: he })}</p>
+                            {dayData.hasExisting && (
+                              <p className="text-xs text-green-600 font-semibold">✓ קיים</p>
+                            )}
                           </div>
                         </div>
                         
@@ -299,6 +320,7 @@ export default function BulkTimeEntryPage() {
                           type="time"
                           value={dayData.start_time}
                           onChange={(e) => handleDayChange(dateKey, 'start_time', e.target.value)}
+                          disabled={dayData.hasExisting}
                           className="h-10"
                         />
                         
@@ -306,6 +328,7 @@ export default function BulkTimeEntryPage() {
                           type="time"
                           value={dayData.end_time}
                           onChange={(e) => handleDayChange(dateKey, 'end_time', e.target.value)}
+                          disabled={dayData.hasExisting}
                           className="h-10"
                         />
                         
@@ -313,6 +336,7 @@ export default function BulkTimeEntryPage() {
                           type="number"
                           value={dayData.break_minutes}
                           onChange={(e) => handleDayChange(dateKey, 'break_minutes', Number(e.target.value))}
+                          disabled={dayData.hasExisting}
                           className="h-10"
                         />
                         
@@ -322,6 +346,7 @@ export default function BulkTimeEntryPage() {
                             value={dayData.notes}
                             onChange={(e) => handleDayChange(dateKey, 'notes', e.target.value)}
                             placeholder="הערות"
+                            disabled={dayData.hasExisting}
                             className="h-10"
                           />
                         </div>
