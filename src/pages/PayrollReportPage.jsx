@@ -38,9 +38,10 @@ export default function PayrollReportPage() {
 
   const closeMonthMutation = useMutation({
     mutationFn: async () => {
+      const monthStr = String(month + 1).padStart(2, '0');
+      const yearMonth = `${year}-${monthStr}`;
       const approvedEntries = entries.filter(e => {
-        const [entryYear, entryMonth] = e.date.split('-').map(Number);
-        return entryMonth - 1 === month && entryYear === year && e.status === "approved";
+        return e.date.startsWith(yearMonth) && e.status === "approved";
       });
       const totalHours = approvedEntries.reduce((sum, e) => sum + (e.total_hours || 0), 0);
       

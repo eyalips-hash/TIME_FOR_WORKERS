@@ -21,8 +21,9 @@ export default function PayrollReport({ employee, entries, month, year }) {
 
   const filteredEntries = entries
     .filter(entry => {
-      const [entryYear, entryMonth] = entry.date.split('-').map(Number);
-      return entryMonth - 1 === month && entryYear === year && entry.status === "approved";
+      const monthStr = String(month + 1).padStart(2, '0');
+      const yearMonth = `${year}-${monthStr}`;
+      return entry.date.startsWith(yearMonth) && entry.status === "approved";
     })
     .sort((a, b) => a.date.localeCompare(b.date));
 
