@@ -21,10 +21,10 @@ export default function PayrollReport({ employee, entries, month, year }) {
 
   const filteredEntries = entries
     .filter(entry => {
-      const entryDate = new Date(entry.date);
-      return entryDate.getMonth() === month && entryDate.getFullYear() === year && entry.status === "approved";
+      const [entryYear, entryMonth] = entry.date.split('-').map(Number);
+      return entryMonth - 1 === month && entryYear === year && entry.status === "approved";
     })
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
+    .sort((a, b) => a.date.localeCompare(b.date));
 
   const totalHours = filteredEntries.reduce((sum, e) => sum + (e.total_hours || 0), 0);
 
