@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Save, Copy, CheckCircle, AlertCircle } from "lucide-react";
+import { Calendar, Save, CheckCircle, AlertCircle } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
 import { he } from "date-fns/locale";
 
@@ -14,11 +14,6 @@ export default function BulkTimeEntryPage() {
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [defaultTimes, setDefaultTimes] = useState({
-    start_time: "09:00",
-    end_time: "17:00",
-    break_minutes: 30
-  });
   const [dayEntries, setDayEntries] = useState({});
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
@@ -57,6 +52,28 @@ export default function BulkTimeEntryPage() {
     return eachDayOfInterval({ start: monthStart, end: monthEnd });
   }, [selectedMonth, selectedYear]);
 
+  // אתחול ימי החודש כשבוחרים עובד או משנים חודש
+  React.useEffect(() => {
+    if (selectedEmployee) {
+      const newEntries = {};
+      daysInMonth.forEach(day => {
+        const dateKey = format(day, "yyyy-MM-dd");
+        const hasEntry = existingEntries?.some(e => e.date === dateKey);
+        
+        if (!hasEntry) {
+          newEntries[dateKey] = {
+            enabled: false,
+            start_time: "09:00",
+            end_time: "17:00",
+            break_minutes: 30,
+            notes: ""
+          };
+        }
+      });
+      setDayEntries(newEntries);
+    }
+  }, [selectedEmployee, selectedMonth, selectedYear, existingEntries]);
+
   const createBulkMutation = useMutation({
     mutationFn: async (entries) => {
       return base44.entities.TimeEntry.bulkCreate(entries);
@@ -72,26 +89,6 @@ export default function BulkTimeEntryPage() {
       setError("שגיאה בשמירת הדיווחים");
     }
   });
-
-  const handleApplyToWorkdays = () => {
-    const newEntries = {};
-    daysInMonth.forEach(day => {
-      const dayOfWeek = day.getDay();
-      const dateKey = format(day, "yyyy-MM-dd");
-      const hasEntry = existingEntries?.some(e => e.date === dateKey);
-      
-      if (dayOfWeek !== 5 && dayOfWeek !== 6 && !hasEntry) {
-        newEntries[dateKey] = {
-          enabled: true,
-          start_time: defaultTimes.start_time,
-          end_time: defaultTimes.end_time,
-          break_minutes: defaultTimes.break_minutes,
-          notes: ""
-        };
-      }
-    });
-    setDayEntries(newEntries);
-  };
 
   const handleDayChange = (dateKey, field, value) => {
     setDayEntries(prev => ({
@@ -254,54 +251,7 @@ export default function BulkTimeEntryPage() {
           </CardContent>
         </Card>
 
-        <Card className="mb-6 shadow-xl border-0 bg-white/90 backdrop-blur">
-          <CardHeader className="border-b border-slate-100">
-            <CardTitle>הגדרות ברירת מחדל</CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid md:grid-cols-4 gap-6">
-              <div>
-                <Label className="text-slate-700 font-semibold mb-2 block">שעת התחלה</Label>
-                <Input
-                  type="time"
-                  value={defaultTimes.start_time}
-                  onChange={(e) => setDefaultTimes(prev => ({...prev, start_time: e.target.value}))}
-                  className="h-12"
-                />
-              </div>
-              <div>
-                <Label className="text-slate-700 font-semibold mb-2 block">שעת סיום</Label>
-                <Input
-                  type="time"
-                  value={defaultTimes.end_time}
-                  onChange={(e) => setDefaultTimes(prev => ({...prev, end_time: e.target.value}))}
-                  className="h-12"
-                />
-              </div>
-              <div>
-                <Label className="text-slate-700 font-semibold mb-2 block">הפסקה (דקות)</Label>
-                <Input
-                  type="number"
-                  value={defaultTimes.break_minutes}
-                  onChange={(e) => setDefaultTimes(prev => ({...prev, break_minutes: Number(e.target.value)}))}
-                  className="h-12"
-                />
-              </div>
-              <div className="flex items-end">
-                <Button 
-                  onClick={handleApplyToWorkdays}
-                  disabled={!selectedEmployee}
-                  className="bg-purple-500 hover:bg-purple-600 h-12 w-full"
-                >
-                  <Copy className="w-5 h-5 ml-2" />
-                  החל על כל ימי העבודה
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {Object.keys(dayEntries).length > 0 && (
+        {selectedEmployee && Object.keys(dayEntries).length > 0 && (
           <>
             <Card className="mb-6 shadow-xl border-0 bg-white/90 backdrop-blur">
               <CardHeader className="border-b border-slate-100 bg-slate-50">
