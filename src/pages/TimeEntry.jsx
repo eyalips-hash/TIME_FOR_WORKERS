@@ -65,8 +65,8 @@ export default function TimeEntryPage() {
   });
 
   const handleSubmit = (data) => {
-    // וידוא ש-employee_email קיים
-    if (!data.employee_email) {
+    // וידוא ש-employee_email קיים - אם זה מנהל, חייב שיהיה נבחר
+    if (!data.employee_email || data.employee_email === "") {
       if (isAdmin) {
         setError("חובה לבחור עובד");
         return;
@@ -75,7 +75,8 @@ export default function TimeEntryPage() {
       data = { ...data, employee_email: user?.email };
     }
 
-    if (!data.employee_email) {
+    // וידוא סופי שיש employee_email
+    if (!data.employee_email || data.employee_email === "") {
       setError("אנא המתן, טוען פרטי משתמש...");
       return;
     }

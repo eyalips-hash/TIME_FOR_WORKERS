@@ -85,14 +85,17 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // וידוא שיש employee_email - רק למנהלים
+    // וידוא שיש employee_email
     let employeeEmail = formData.employee_email;
-    if (!employeeEmail) {
-      if (isAdmin) {
-        alert("חובה לבחור עובד");
-        return;
-      }
-      // לעובד רגיל - השתמש במייל שלו
+    
+    // אם זה מנהל - חובה שיבחר עובד
+    if (isAdmin && (!employeeEmail || employeeEmail === "")) {
+      alert("חובה לבחור עובד");
+      return;
+    }
+    
+    // אם זה לא מנהל ואין employee_email - השתמש במייל של המשתמש הנוכחי
+    if (!isAdmin && (!employeeEmail || employeeEmail === "")) {
       employeeEmail = user?.email;
     }
 
