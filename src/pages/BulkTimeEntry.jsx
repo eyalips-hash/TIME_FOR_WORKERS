@@ -268,6 +268,10 @@ export default function BulkTimeEntryPage() {
                     const dateKey = format(day, "yyyy-MM-dd");
                     const dayData = dayEntries[dateKey];
                     const hasExisting = existingEntries?.some(e => e.date === dateKey);
+                    const dayOfWeek = day.getDay();
+                    
+                    // לא להציג שישי ושבת
+                    if (dayOfWeek === 5 || dayOfWeek === 6) return null;
                     
                     if (!dayData) return null;
 
