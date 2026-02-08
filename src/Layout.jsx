@@ -41,6 +41,12 @@ export default function Layout({ children, currentPageName }) {
       show: true,
     },
     {
+      title: "הזנה מרובה",
+      url: createPageUrl("BulkTimeEntry"),
+      icon: Calendar,
+      show: isAdmin,
+    },
+    {
       title: "אישור דיווחים",
       url: createPageUrl("Approvals"),
       icon: CheckCircle,
