@@ -10,17 +10,11 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting, isAdmin, currentUser }) {
-  const [user, setUser] = React.useState(currentUser || null);
-
-  React.useEffect(() => {
-    if (!currentUser) {
-      base44.auth.me().then(setUser);
-    } else {
-      setUser(currentUser);
-    }
-  }, [currentUser]);
+  const { user: contextUser } = useAuth();
+  const user = currentUser || contextUser;
 
   const { data: users } = useQuery({
     queryKey: ['users'],

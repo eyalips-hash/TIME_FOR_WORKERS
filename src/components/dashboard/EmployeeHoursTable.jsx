@@ -63,17 +63,6 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
     setShowMonthSelector(true);
   };
 
-  if (!entries || entries.length === 0) {
-    return (
-      <Card className="shadow-lg border-0">
-        <CardContent className="py-16 text-center">
-          <Clock className="w-16 h-16 mx-auto mb-4 text-slate-300" />
-          <p className="text-xl text-slate-500">אין דיווחי שעות</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   const entriesByEmployee = React.useMemo(() => {
     const grouped = {};
     entries.forEach(entry => {
@@ -86,6 +75,17 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
     });
     return grouped;
   }, [entries]);
+
+  if (!entries || entries.length === 0) {
+    return (
+      <Card className="shadow-lg border-0">
+        <CardContent className="py-16 text-center">
+          <Clock className="w-16 h-16 mx-auto mb-4 text-slate-300" />
+          <p className="text-xl text-slate-500">אין דיווחי שעות</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
