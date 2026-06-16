@@ -2,6 +2,7 @@ import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Users, Clock, CheckCircle, Calendar } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
@@ -24,11 +25,7 @@ export default function DashboardPage() {
   const [deleteId, setDeleteId] = React.useState(null);
   const [editingEntry, setEditingEntry] = React.useState(null);
   const [selectedEmployee, setSelectedEmployee] = React.useState("all");
-  const [user, setUser] = React.useState(null);
-
-  React.useEffect(() => {
-    base44.auth.me().then(setUser);
-  }, []);
+  const { user } = useAuth();
 
   const { data: allEntries, isLoading } = useQuery({
     queryKey: ['allTimeEntries'],

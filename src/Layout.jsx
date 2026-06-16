@@ -6,15 +6,12 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
-  const [user, setUser] = React.useState(null);
+  const { user, logout: authLogout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
-
-  React.useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
-  }, []);
 
   const isAdmin = user?.role === 'admin';
 
@@ -68,7 +65,7 @@ export default function Layout({ children, currentPageName }) {
   ].filter(item => item.show);
 
   const handleLogout = () => {
-    base44.auth.logout();
+    authLogout();
   };
 
   return (

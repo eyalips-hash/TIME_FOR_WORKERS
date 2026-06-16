@@ -5,23 +5,15 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import TimeEntryForm from "../components/timeentry/TimeEntryForm";
 import { CheckCircle, AlertCircle } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function TimeEntryPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [error, setError] = React.useState(null);
-  const [user, setUser] = React.useState(null);
-  const [isAdmin, setIsAdmin] = React.useState(false);
-
-  React.useEffect(() => {
-    base44.auth.me().then(u => {
-      setUser(u);
-      setIsAdmin(u?.role === 'admin');
-    }).catch(() => {
-      setError("שגיאה בטעינת פרטי משתמש");
-    });
-  }, []);
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
 
   const { data: users } = useQuery({
     queryKey: ['users'],
@@ -30,20 +22,15 @@ export default function TimeEntryPage() {
     enabled: isAdmin,
   });
 
-  const { data: existingEntries, isLoading: entriesLoading } = useQuery({
-    queryKey: ['myTimeEntries', user?.email],
-    queryFn: async () => {
-      if (!user?.email) return [];
-      return base44.entities.TimeEntry.filter({ employee_email: user.email });
-    },
-    enabled: !!user?.email,
+  const { data: existingEntries } = useQuery({
+    queryKey: ['allTimeEntries'],
+    queryFn: () => base44.entities.TimeEntry.list(),
     initialData: [],
   });
 
   const { data: closedMonths } = useQuery({
-    queryKey: ['closedMonths', user?.email],
-    queryFn: () => base44.entities.ClosedMonth.filter({ employee: user.email }),
-    enabled: !!user?.email,
+    queryKey: ['allClosedMonths'],
+    queryFn: () => base44.entities.ClosedMonth.list(),
     initialData: [],
   });
 

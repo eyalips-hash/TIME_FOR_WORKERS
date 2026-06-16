@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Plus, Calendar, Clock, Edit } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
@@ -23,17 +24,13 @@ import TimeEntryForm from "../components/timeentry/TimeEntryForm";
 import BulkEditForm from "../components/timeentry/BulkEditForm";
 
 export default function MyHoursPage() {
-  const [user, setUser] = React.useState(null);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [deleteId, setDeleteId] = React.useState(null);
   const [editingEntry, setEditingEntry] = React.useState(null);
   const [selectedEntries, setSelectedEntries] = React.useState([]);
   const [showBulkEdit, setShowBulkEdit] = React.useState(false);
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-
-  React.useEffect(() => {
-    base44.auth.me().then(setUser);
-  }, []);
 
   const { data: entries, isLoading } = useQuery({
     queryKey: ['myTimeEntries', user?.email],
