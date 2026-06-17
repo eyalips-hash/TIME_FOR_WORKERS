@@ -49,10 +49,10 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
 
   // עדכן employee_email כאשר ה-user נטען (לעובד רגיל בדיווח חדש בלבד)
   React.useEffect(() => {
-    if (!isAdmin && user?.email && !entry && !formData.employee_email) {
+    if (!isAdmin && user?.email && !entry) {
       setFormData(prev => ({...prev, employee_email: user.email}));
     }
-  }, [user?.email, isAdmin, entry]);
+  }, [user?.email]);
 
   const [weekendWarning, setWeekendWarning] = React.useState(false);
 

@@ -64,7 +64,7 @@ export default function TimeEntryPage() {
 
     // וידוא סופי שיש employee_email
     if (!data.employee_email || data.employee_email === "") {
-      setError("אנא המתן, טוען פרטי משתמש...");
+      setError("לא נמצא אימייל עובד. נסה להתנתק ולהתחבר מחדש.");
       return;
     }
 
