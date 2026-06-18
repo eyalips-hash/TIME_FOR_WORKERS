@@ -10,11 +10,17 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
-import { useAuth } from "@/lib/AuthContext";
 
 export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting, isAdmin, currentUser }) {
-  const { user: contextUser } = useAuth();
-  const user = currentUser || contextUser;
+  const [user, setUser] = React.useState(currentUser || null);
+
+  React.useEffect(() => {
+    if (!currentUser) {
+      base44.auth.me().then(setUser);
+    } else {
+      setUser(currentUser);
+    }
+  }, [currentUser]);
 
   const { data: users } = useQuery({
     queryKey: ['users'],
@@ -47,12 +53,12 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
     status: entry?.status || "pending",
   });
 
-  // עדכן employee_email כאשר ה-user נטען (לעובד רגיל בדיווח חדש בלבד)
+  // עדכן employee_email רק לעובד רגיל בדיווח חדש (לא עריכה)
   React.useEffect(() => {
     if (!isAdmin && user?.email && !entry) {
       setFormData(prev => ({...prev, employee_email: user.email}));
     }
-  }, [user?.email]);
+  }, [user, isAdmin, entry]);
 
   const [weekendWarning, setWeekendWarning] = React.useState(false);
 

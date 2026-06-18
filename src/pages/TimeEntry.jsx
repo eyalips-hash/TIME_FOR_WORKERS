@@ -5,15 +5,23 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import TimeEntryForm from "../components/timeentry/TimeEntryForm";
 import { CheckCircle, AlertCircle } from "lucide-react";
-import { useAuth } from "@/lib/AuthContext";
 
 export default function TimeEntryPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [error, setError] = React.useState(null);
-  const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const [user, setUser] = React.useState(null);
+  const [isAdmin, setIsAdmin] = React.useState(false);
+
+  React.useEffect(() => {
+    base44.auth.me().then(u => {
+      setUser(u);
+      setIsAdmin(u?.role === 'admin');
+    }).catch(() => {
+      setError("שגיאה בטעינת פרטי משתמש");
+    });
+  }, []);
 
   const { data: users } = useQuery({
     queryKey: ['users'],
@@ -22,15 +30,20 @@ export default function TimeEntryPage() {
     enabled: isAdmin,
   });
 
-  const { data: existingEntries } = useQuery({
-    queryKey: ['allTimeEntries'],
-    queryFn: () => base44.entities.TimeEntry.list(),
+  const { data: existingEntries, isLoading: entriesLoading } = useQuery({
+    queryKey: ['myTimeEntries', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return [];
+      return base44.entities.TimeEntry.filter({ employee_email: user.email });
+    },
+    enabled: !!user?.email,
     initialData: [],
   });
 
   const { data: closedMonths } = useQuery({
-    queryKey: ['allClosedMonths'],
-    queryFn: () => base44.entities.ClosedMonth.list(),
+    queryKey: ['closedMonths', user?.email],
+    queryFn: () => base44.entities.ClosedMonth.filter({ employee: user.email }),
+    enabled: !!user?.email,
     initialData: [],
   });
 
@@ -64,7 +77,7 @@ export default function TimeEntryPage() {
 
     // וידוא סופי שיש employee_email
     if (!data.employee_email || data.employee_email === "") {
-      setError("לא נמצא אימייל עובד. נסה להתנתק ולהתחבר מחדש.");
+      setError("אנא המתן, טוען פרטי משתמש...");
       return;
     }
 
@@ -137,12 +150,18 @@ export default function TimeEntryPage() {
           </div>
         )}
 
-        <TimeEntryForm
-          onSubmit={handleSubmit}
-          isSubmitting={createEntryMutation.isPending}
-          isAdmin={isAdmin}
-          currentUser={user}
-        />
+        {!user ? (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-8 text-center">
+            <p className="text-blue-900 font-semibold text-lg">טוען פרטי משתמש...</p>
+          </div>
+        ) : (
+          <TimeEntryForm
+            onSubmit={handleSubmit}
+            isSubmitting={createEntryMutation.isPending}
+            isAdmin={isAdmin}
+            currentUser={user}
+          />
+        )}
       </div>
     </div>
   );

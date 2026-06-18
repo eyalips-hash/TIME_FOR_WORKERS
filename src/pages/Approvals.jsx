@@ -112,7 +112,7 @@ export default function ApprovalsPage() {
                     {entries.map((entry) => (
                       <TableRow key={entry.id} className="hover:bg-slate-50 transition-colors">
                         <TableCell className="font-semibold">
-                          {usersByEmail[entry.employee_email] || entry.employee_email}
+                          {usersByEmail[entry.created_by] || entry.created_by}
                         </TableCell>
                         <TableCell>
                           {format(new Date(entry.date), "dd/MM/yy")}
