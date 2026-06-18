@@ -1,13 +1,11 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
+import { CheckCircle, XCircle } from "lucide-react";
 import { format } from "date-fns";
-import { he } from "date-fns/locale";
 
 export default function ApprovalsPage() {
   const queryClient = useQueryClient();
@@ -18,20 +16,6 @@ export default function ApprovalsPage() {
     initialData: [],
   });
 
-  const { data: users } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => base44.entities.User.list(),
-    initialData: [],
-  });
-
-  const usersByEmail = React.useMemo(() => {
-    const map = {};
-    users?.forEach(user => {
-      map[user.email] = user.full_name || user.email;
-    });
-    return map;
-  }, [users]);
-
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }) => base44.entities.TimeEntry.update(id, { status }),
     onSuccess: () => {
@@ -40,18 +24,8 @@ export default function ApprovalsPage() {
     },
   });
 
-  const handleApprove = (id) => {
-    updateStatusMutation.mutate({ id, status: 'approved' });
-  };
-
-  const handleReject = (id) => {
-    updateStatusMutation.mutate({ id, status: 'rejected' });
-  };
-
   const approveAll = () => {
-    entries.forEach(entry => {
-      updateStatusMutation.mutate({ id: entry.id, status: 'approved' });
-    });
+    entries.forEach(entry => updateStatusMutation.mutate({ id: entry.id, status: 'approved' }));
   };
 
   if (isLoading) {
@@ -69,17 +43,11 @@ export default function ApprovalsPage() {
           <div>
             <h1 className="text-3xl font-bold text-slate-900 mb-2">אישור דיווחים</h1>
             <p className="text-lg text-slate-600">
-              {entries.length > 0 
-                ? `${entries.length} דיווחים ממתינים לאישור`
-                : 'אין דיווחים ממתינים'
-              }
+              {entries.length > 0 ? `${entries.length} דיווחים ממתינים לאישור` : 'אין דיווחים ממתינים'}
             </p>
           </div>
           {entries.length > 0 && (
-            <Button 
-              onClick={approveAll}
-              className="bg-green-600 hover:bg-green-700"
-            >
+            <Button onClick={approveAll} className="bg-green-600 hover:bg-green-700">
               <CheckCircle className="w-5 h-5 ml-2" />
               אשר הכל ({entries.length})
             </Button>
@@ -101,7 +69,6 @@ export default function ApprovalsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-slate-50">
-                      <TableHead className="text-right font-bold">עובד</TableHead>
                       <TableHead className="text-right font-bold">תאריך</TableHead>
                       <TableHead className="text-right font-bold">שעות</TableHead>
                       <TableHead className="text-right font-bold">סה״כ</TableHead>
@@ -111,40 +78,20 @@ export default function ApprovalsPage() {
                   <TableBody>
                     {entries.map((entry) => (
                       <TableRow key={entry.id} className="hover:bg-slate-50 transition-colors">
-                        <TableCell className="font-semibold">
-                          {usersByEmail[entry.created_by] || entry.created_by}
-                        </TableCell>
-                        <TableCell>
-                          {format(new Date(entry.date), "dd/MM/yy")}
-                        </TableCell>
+                        <TableCell>{format(new Date(entry.date), "dd/MM/yy")}</TableCell>
                         <TableCell>
                           <span className="font-medium">{entry.start_time}</span>
                           <span className="text-slate-400 mx-1">-</span>
                           <span className="font-medium">{entry.end_time}</span>
                         </TableCell>
-                        <TableCell className="font-bold text-lg">
-                          {entry.total_hours?.toFixed(2)}
-                        </TableCell>
+                        <TableCell className="font-bold text-lg">{entry.total_hours?.toFixed(2)}</TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => handleApprove(entry.id)}
-                              className="bg-green-500 hover:bg-green-600"
-                              disabled={updateStatusMutation.isPending}
-                            >
-                              <CheckCircle className="w-4 h-4 ml-1" />
-                              אשר
+                            <Button size="sm" onClick={() => updateStatusMutation.mutate({ id: entry.id, status: 'approved' })} className="bg-green-500 hover:bg-green-600" disabled={updateStatusMutation.isPending}>
+                              <CheckCircle className="w-4 h-4 ml-1" />אשר
                             </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleReject(entry.id)}
-                              className="text-red-600 hover:bg-red-50"
-                              disabled={updateStatusMutation.isPending}
-                            >
-                              <XCircle className="w-4 h-4 ml-1" />
-                              דחה
+                            <Button size="sm" variant="outline" onClick={() => updateStatusMutation.mutate({ id: entry.id, status: 'rejected' })} className="text-red-600 hover:bg-red-50" disabled={updateStatusMutation.isPending}>
+                              <XCircle className="w-4 h-4 ml-1" />דחה
                             </Button>
                           </div>
                         </TableCell>

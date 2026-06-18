@@ -20,12 +20,6 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
   const [selectedEmployee, setSelectedEmployee] = React.useState(null);
   const [showMonthSelector, setShowMonthSelector] = React.useState(false);
 
-  const { data: users } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => base44.entities.User.list(),
-    initialData: [],
-  });
-
   const { data: closedMonths } = useQuery({
     queryKey: ['closedMonths'],
     queryFn: () => base44.entities.ClosedMonth.list(),
@@ -34,29 +28,25 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
 
   const isMonthClosed = (entry) => {
     const entryDate = new Date(entry.date);
-    const entryMonth = entryDate.getMonth();
-    const entryYear = entryDate.getFullYear();
     return closedMonths?.some(
-      cm => cm.employee === entry.employee_email && cm.month === entryMonth && cm.year === entryYear
+      cm => cm.employee === entry.employee_email && cm.month === entryDate.getMonth() && cm.year === entryDate.getFullYear()
     );
   };
 
-  const usersByEmail = React.useMemo(() => {
-    const map = {};
-    users?.forEach(user => {
-      map[user.email] = user.full_name || user.email;
-    });
-    return map;
-  }, [users]);
-  
   const employees = React.useMemo(() => {
-    const employeeEmails = [...new Set(entries.map(e => e.employee_email).filter(Boolean))];
-    // סנן מנהלים מרשימת העובדים
-    return employeeEmails.filter(email => {
-      const employeeUser = users?.find(u => u.email === email);
-      return employeeUser?.role !== 'admin';
+    return [...new Set(entries.map(e => e.employee_email).filter(Boolean))];
+  }, [entries]);
+
+  const entriesByEmployee = React.useMemo(() => {
+    const grouped = {};
+    entries.forEach(entry => {
+      if (entry.employee_email) {
+        if (!grouped[entry.employee_email]) grouped[entry.employee_email] = [];
+        grouped[entry.employee_email].push(entry);
+      }
     });
-  }, [entries, users]);
+    return grouped;
+  }, [entries]);
 
   const handleGenerateReportClick = (employee) => {
     setSelectedEmployee(employee);
@@ -73,19 +63,6 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
       </Card>
     );
   }
-
-  const entriesByEmployee = React.useMemo(() => {
-    const grouped = {};
-    entries.forEach(entry => {
-      if (entry.employee_email) {
-        if (!grouped[entry.employee_email]) {
-          grouped[entry.employee_email] = [];
-        }
-        grouped[entry.employee_email].push(entry);
-      }
-    });
-    return grouped;
-  }, [entries]);
 
   return (
     <div className="space-y-6">
@@ -112,7 +89,7 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
                 className="bg-white hover:bg-blue-50"
               >
                 <FileText className="w-4 h-4 ml-2" />
-                דוח ל-{usersByEmail[employee] || employee}
+                דוח ל-{employee}
               </Button>
             ))}
           </div>
@@ -124,7 +101,7 @@ export default function EmployeeHoursTable({ entries, onUpdateStatus, onEdit, on
         <Card key={employee} className="shadow-lg border-0 bg-white/90 backdrop-blur">
           <CardHeader className="border-b border-slate-100 bg-slate-50">
             <CardTitle className="text-xl font-bold text-slate-900">
-              {usersByEmail[employee] || employee}
+              {employee}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">

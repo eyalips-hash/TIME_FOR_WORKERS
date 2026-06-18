@@ -5,45 +5,23 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import TimeEntryForm from "../components/timeentry/TimeEntryForm";
 import { CheckCircle, AlertCircle } from "lucide-react";
+import { EMPLOYEE_EMAIL } from "@/lib/employee";
 
 export default function TimeEntryPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [error, setError] = React.useState(null);
-  const [user, setUser] = React.useState(null);
-  const [isAdmin, setIsAdmin] = React.useState(false);
 
-  React.useEffect(() => {
-    base44.auth.me().then(u => {
-      setUser(u);
-      setIsAdmin(u?.role === 'admin');
-    }).catch(() => {
-      setError("שגיאה בטעינת פרטי משתמש");
-    });
-  }, []);
-
-  const { data: users } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => base44.entities.User.list(),
-    initialData: [],
-    enabled: isAdmin,
-  });
-
-  const { data: existingEntries, isLoading: entriesLoading } = useQuery({
-    queryKey: ['myTimeEntries', user?.email],
-    queryFn: async () => {
-      if (!user?.email) return [];
-      return base44.entities.TimeEntry.filter({ employee_email: user.email });
-    },
-    enabled: !!user?.email,
+  const { data: existingEntries } = useQuery({
+    queryKey: ['myTimeEntries'],
+    queryFn: () => base44.entities.TimeEntry.filter({ employee_email: EMPLOYEE_EMAIL }),
     initialData: [],
   });
 
   const { data: closedMonths } = useQuery({
-    queryKey: ['closedMonths', user?.email],
-    queryFn: () => base44.entities.ClosedMonth.filter({ employee: user.email }),
-    enabled: !!user?.email,
+    queryKey: ['closedMonths'],
+    queryFn: () => base44.entities.ClosedMonth.filter({ employee: EMPLOYEE_EMAIL }),
     initialData: [],
   });
 
@@ -59,35 +37,18 @@ export default function TimeEntryPage() {
         navigate(createPageUrl("MyHours"));
       }, 2000);
     },
-    onError: (err) => {
+    onError: () => {
       setError("שגיאה בשמירת הדיווח");
     }
   });
 
   const handleSubmit = (data) => {
-    // וידוא ש-employee_email קיים - אם זה מנהל, חייב שיהיה נבחר
-    if (!data.employee_email || data.employee_email === "") {
-      if (isAdmin) {
-        setError("חובה לבחור עובד");
-        return;
-      }
-      // לעובד רגיל - השתמש במייל שלו
-      data = { ...data, employee_email: user?.email };
-    }
-
-    // וידוא סופי שיש employee_email
-    if (!data.employee_email || data.employee_email === "") {
-      setError("אנא המתן, טוען פרטי משתמש...");
-      return;
-    }
-
     const entryDate = new Date(data.date);
     const entryMonth = entryDate.getMonth();
     const entryYear = entryDate.getFullYear();
 
-    // בדיקה שהחודש לא סגור
     const isMonthClosed = closedMonths?.some(
-      cm => cm.employee === data.employee_email && cm.month === entryMonth && cm.year === entryYear
+      cm => cm.employee === EMPLOYEE_EMAIL && cm.month === entryMonth && cm.year === entryYear
     );
 
     if (isMonthClosed) {
@@ -95,18 +56,14 @@ export default function TimeEntryPage() {
       return;
     }
 
-    // בדיקה שאין דיווח כפול לאותו יום
-    const dateExists = existingEntries?.some(
-      entry => entry.date === data.date && entry.employee_email === data.employee_email
-    );
-    
+    const dateExists = existingEntries?.some(entry => entry.date === data.date);
     if (dateExists) {
-      setError("כבר קיים דיווח לתאריך זה עבור העובד.");
+      setError("כבר קיים דיווח לתאריך זה.");
       return;
     }
 
     setError(null);
-    createEntryMutation.mutate(data);
+    createEntryMutation.mutate({ ...data, employee_email: EMPLOYEE_EMAIL });
   };
 
   return (
@@ -141,27 +98,10 @@ export default function TimeEntryPage() {
           </div>
         )}
 
-        {user && (
-          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
-            <p className="text-blue-900 font-semibold">פרטי משתמש:</p>
-            <p className="text-blue-700 text-sm">שם: {user.full_name}</p>
-            <p className="text-blue-700 text-sm">אימייל: {user.email}</p>
-            <p className="text-blue-700 text-sm">תפקיד: {user.role === 'admin' ? 'מנהל' : 'עובד'}</p>
-          </div>
-        )}
-
-        {!user ? (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-8 text-center">
-            <p className="text-blue-900 font-semibold text-lg">טוען פרטי משתמש...</p>
-          </div>
-        ) : (
-          <TimeEntryForm
-            onSubmit={handleSubmit}
-            isSubmitting={createEntryMutation.isPending}
-            isAdmin={isAdmin}
-            currentUser={user}
-          />
-        )}
+        <TimeEntryForm
+          onSubmit={handleSubmit}
+          isSubmitting={createEntryMutation.isPending}
+        />
       </div>
     </div>
   );
