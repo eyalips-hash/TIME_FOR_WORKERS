@@ -7,8 +7,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronLeft, ChevronRight, Calendar, CheckCircle, XCircle, Clock, Pencil, Trash2 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO, isWithinInterval } from "date-fns";
 import { he } from "date-fns/locale";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { Lock, LockOpen } from "lucide-react";
+import { EMPLOYEE_EMAIL } from "@/lib/employee";
 
 const statusConfig = {
   pending: { label: "ממתין", color: "bg-yellow-100 text-yellow-800", icon: Clock },
@@ -17,6 +19,7 @@ const statusConfig = {
 };
 
 export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onDelete, selectedEntries, onSelectEntry, onSelectAll }) {
+  const queryClient = useQueryClient();
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const monthStart = startOfMonth(currentMonth);
@@ -43,6 +46,46 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
       cm => cm.employee === entry.employee_email && cm.month === entryMonth && cm.year === entryYear
     );
   };
+
+  const isCurrentMonthClosed = closedMonths?.some(
+    cm => cm.employee === EMPLOYEE_EMAIL && cm.month === currentMonth.getMonth() && cm.year === currentMonth.getFullYear()
+  );
+
+  const closeMonthMutation = useMutation({
+    mutationFn: () => {
+      const monthHours = entries
+        ?.filter(entry => {
+          const entryDate = parseISO(entry.date);
+          return isWithinInterval(entryDate, { start: monthStart, end: monthEnd }) && entry.employee_email === EMPLOYEE_EMAIL && entry.status === "approved";
+        })
+        .reduce((sum, entry) => sum + (entry.total_hours || 0), 0) || 0;
+
+      return base44.entities.ClosedMonth.create({
+        employee: EMPLOYEE_EMAIL,
+        month: currentMonth.getMonth(),
+        year: currentMonth.getFullYear(),
+        total_hours: monthHours,
+        closed_by: EMPLOYEE_EMAIL,
+        closed_date: new Date().toISOString(),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['closedMonths'] });
+    },
+  });
+
+  const openMonthMutation = useMutation({
+    mutationFn: () => {
+      const closedRecord = closedMonths?.find(
+        cm => cm.employee === EMPLOYEE_EMAIL && cm.month === currentMonth.getMonth() && cm.year === currentMonth.getFullYear()
+      );
+      if (!closedRecord) return;
+      return base44.entities.ClosedMonth.delete(closedRecord.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['closedMonths'] });
+    },
+  });
 
   const usersByEmail = React.useMemo(() => {
     const map = {};
@@ -123,6 +166,25 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
               </Button>
               <Button variant="outline" size="icon" onClick={nextMonth}>
                 <ChevronLeft className="w-5 h-5" />
+              </Button>
+              <Button
+                onClick={() => isCurrentMonthClosed ? openMonthMutation.mutate() : closeMonthMutation.mutate()}
+                disabled={closeMonthMutation.isPending || openMonthMutation.isPending}
+                className={isCurrentMonthClosed
+                  ? "bg-green-600 hover:bg-green-700 text-white"
+                  : "bg-slate-700 hover:bg-slate-800 text-white"}
+              >
+                {isCurrentMonthClosed ? (
+                  <>
+                    <LockOpen className="w-4 h-4 ml-2" />
+                    פתח חודש
+                  </>
+                ) : (
+                  <>
+                    <Lock className="w-4 h-4 ml-2" />
+                    נעל חודש
+                  </>
+                )}
               </Button>
             </div>
           </div>
