@@ -11,6 +11,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Lock, LockOpen } from "lucide-react";
 import { EMPLOYEE_EMAIL } from "@/lib/employee";
+import { useIsAdmin } from "@/lib/useIsAdmin";
 
 const statusConfig = {
   pending: { label: "ממתין", color: "bg-yellow-100 text-yellow-800", icon: Clock },
@@ -20,6 +21,7 @@ const statusConfig = {
 
 export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onDelete, selectedEntries, onSelectEntry, onSelectAll }) {
   const queryClient = useQueryClient();
+  const isAdmin = useIsAdmin();
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const monthStart = startOfMonth(currentMonth);
@@ -167,6 +169,7 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
               <Button variant="outline" size="icon" onClick={nextMonth}>
                 <ChevronLeft className="w-5 h-5" />
               </Button>
+              {isAdmin && (
               <Button
                 onClick={() => isCurrentMonthClosed ? openMonthMutation.mutate() : closeMonthMutation.mutate()}
                 disabled={closeMonthMutation.isPending || openMonthMutation.isPending}
@@ -186,6 +189,7 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
                   </>
                 )}
               </Button>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -343,7 +347,7 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
                             <TableCell>
                               {entry ? (
                                 <div className="flex gap-2">
-                                  {!isMonthClosed(entry) ? (
+                                  {!isMonthClosed(entry) && (isAdmin || entry.status === "pending") ? (
                                     <>
                                       {onEdit && (
                                         <Button
@@ -386,7 +390,7 @@ export default function MonthlyHoursTable({ entries, onUpdateStatus, onEdit, onD
                                       )}
                                     </>
                                   ) : (
-                                    <Badge variant="outline" className="text-slate-500 text-xs">חודש סגור</Badge>
+                                    <Badge variant="outline" className="text-slate-500 text-xs">{isMonthClosed(entry) ? "חודש סגור" : "נעול לעריכה"}</Badge>
                                   )}
                                 </div>
                               ) : (
