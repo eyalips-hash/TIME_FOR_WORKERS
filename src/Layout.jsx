@@ -6,27 +6,31 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
+import { useIsAdmin } from "@/lib/useIsAdmin";
 
 export default function Layout({ children }) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const isAdmin = useIsAdmin();
 
   const { data: pendingEntries } = useQuery({
     queryKey: ['pendingEntries'],
     queryFn: () => base44.entities.TimeEntry.filter({ status: 'pending' }),
     initialData: [],
+    enabled: isAdmin,
   });
 
   const pendingCount = pendingEntries?.length || 0;
 
-  const navigationItems = [
-    { title: "לוח בקרה", url: createPageUrl("Dashboard"), icon: BarChart3 },
+  const allNavigationItems = [
+    { title: "לוח בקרה", url: createPageUrl("Dashboard"), icon: BarChart3, adminOnly: true },
     { title: "דיווח חדש", url: createPageUrl("TimeEntry"), icon: Plus },
     { title: "השעות שלי", url: createPageUrl("MyHours"), icon: Clock },
-    { title: "הזנה מרובה", url: createPageUrl("BulkTimeEntry"), icon: Calendar },
-    { title: "אישור דיווחים", url: createPageUrl("Approvals"), icon: CheckCircle, badge: pendingCount },
-    { title: "הפקת דוחות", url: createPageUrl("Reports"), icon: FileText },
+    { title: "הזנה מרובה", url: createPageUrl("BulkTimeEntry"), icon: Calendar, adminOnly: true },
+    { title: "אישור דיווחים", url: createPageUrl("Approvals"), icon: CheckCircle, badge: pendingCount, adminOnly: true },
+    { title: "הפקת דוחות", url: createPageUrl("Reports"), icon: FileText, adminOnly: true },
   ];
+  const navigationItems = allNavigationItems.filter(item => isAdmin || !item.adminOnly);
 
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-slate-50 to-blue-50" dir="rtl">
