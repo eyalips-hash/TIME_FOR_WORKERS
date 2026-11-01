@@ -9,6 +9,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import { ADMIN_ONLY_PAGES } from '@/lib/useIsAdmin';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -19,7 +20,8 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   : <>{children}</>;
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, navigateToLogin, user } = useAuth();
+  const isAdmin = user?.role === 'admin';
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -47,7 +49,11 @@ const AuthenticatedApp = () => {
       <Routes>
         <Route path="/" element={<MainPage />} />
         {Object.entries(Pages).map(([path, Page]) => (
-          <Route key={path} path={`/${path}`} element={<Page />} />
+          <Route
+            key={path}
+            path={`/${path}`}
+            element={ADMIN_ONLY_PAGES.includes(path) && !isAdmin ? <MainPage /> : <Page />}
+          />
         ))}
         <Route path="*" element={<PageNotFound />} />
       </Routes>
