@@ -78,7 +78,7 @@ export default function BulkTimeEntryPage() {
           // אם אין דיווח קיים - צור חדש
           newEntries[dateKey] = {
             enabled: false,
-            start_time: "09:00",
+            start_time: "08:30",
             end_time: "17:00",
             break_minutes: 30,
             notes: "",
