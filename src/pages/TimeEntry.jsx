@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import TimeEntryForm from "../components/timeentry/TimeEntryForm";
+import MonthOverview from "../components/timeentry/MonthOverview";
 import { CheckCircle, AlertCircle } from "lucide-react";
 import { EMPLOYEE_EMAIL } from "@/lib/employee";
 
@@ -12,6 +13,9 @@ export default function TimeEntryPage() {
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [error, setError] = React.useState(null);
+  const [viewMonth, setViewMonth] = React.useState(new Date().getMonth());
+  const [viewYear, setViewYear] = React.useState(new Date().getFullYear());
+  const [presetDate, setPresetDate] = React.useState(null);
 
   const { data: existingEntries } = useQuery({
     queryKey: ['myTimeEntries'],
@@ -32,10 +36,8 @@ export default function TimeEntryPage() {
       queryClient.invalidateQueries({ queryKey: ['myTimeEntries'] });
       setShowSuccess(true);
       setError(null);
-      setTimeout(() => {
-        setShowSuccess(false);
-        navigate(createPageUrl("MyHours"));
-      }, 2000);
+      // נשארים במסך כדי לראות את החודש מתעדכן ולמלא ימים חסרים נוספים
+      setTimeout(() => setShowSuccess(false), 3000);
     },
     onError: () => {
       setError("שגיאה בשמירת הדיווח");
@@ -81,7 +83,7 @@ export default function TimeEntryPage() {
             </div>
             <div>
               <p className="text-lg font-bold text-green-900">הדיווח נשמר בהצלחה!</p>
-              <p className="text-green-700">מעביר אותך לדף השעות שלך...</p>
+              <p className="text-green-700">היום מופיע עכשיו ברשימת החודש למטה</p>
             </div>
           </div>
         )}
@@ -101,6 +103,21 @@ export default function TimeEntryPage() {
         <TimeEntryForm
           onSubmit={handleSubmit}
           isSubmitting={createEntryMutation.isPending}
+          presetDate={presetDate}
+        />
+
+        <MonthOverview
+          entries={existingEntries || []}
+          closedMonths={closedMonths || []}
+          month={viewMonth}
+          year={viewYear}
+          onMonthChange={(m, y) => { setViewMonth(m); setViewYear(y); }}
+          onPickDate={(date) => {
+            setPresetDate({ date, t: Date.now() });
+            setError(null);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            document.querySelector('main .overflow-auto')?.scrollTo({ top: 0, behavior: "smooth" });
+          }}
         />
       </div>
     </div>
