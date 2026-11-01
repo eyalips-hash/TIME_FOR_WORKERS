@@ -8,8 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Clock } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
+import { useIsAdmin } from "@/lib/useIsAdmin";
 
 export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting }) {
+  const isAdmin = useIsAdmin();
   const [formData, setFormData] = React.useState({
     date: entry?.date || new Date().toISOString().split('T')[0],
     start_time: entry?.start_time || "08:30",
@@ -39,7 +41,9 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting 
   const handleSubmit = (e) => {
     e.preventDefault();
     const total_hours = parseFloat(calculateHours());
-    onSubmit({ ...formData, total_hours });
+    // עובד לא קובע סטטוס: כל דיווח חדש או ערוך חוזר לאישור המנהל
+    const status = isAdmin ? formData.status : "pending";
+    onSubmit({ ...formData, status, total_hours });
   };
 
   return (
@@ -129,6 +133,7 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting 
             />
           </div>
 
+          {isAdmin && (
           <div>
             <Label className="text-slate-700 font-semibold mb-2 block">סטטוס</Label>
             <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
@@ -142,6 +147,7 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting 
               </SelectContent>
             </Select>
           </div>
+          )}
 
           <div className="flex gap-4 pt-4">
             <Button
