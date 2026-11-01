@@ -4,29 +4,29 @@
   "properties": {
     "employee_email": {
       "type": "string",
-      "description": "\u05d0\u05d9\u05de\u05d9\u05d9\u05dc \u05d4\u05e2\u05d5\u05d1\u05d3 (\u05dc\u05de\u05e0\u05d4\u05dc\u05d9\u05dd - \u05dc\u05d1\u05d7\u05d9\u05e8\u05ea \u05e2\u05d5\u05d1\u05d3)"
+      "description": "אימייל העובד (למנהלים - לבחירת עובד)"
     },
     "date": {
       "type": "string",
       "format": "date",
-      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d4\u05e2\u05d1\u05d5\u05d3\u05d4"
+      "description": "תאריך העבודה"
     },
     "start_time": {
       "type": "string",
-      "description": "\u05e9\u05e2\u05ea \u05d4\u05ea\u05d7\u05dc\u05d4"
+      "description": "שעת התחלה"
     },
     "end_time": {
       "type": "string",
-      "description": "\u05e9\u05e2\u05ea \u05e1\u05d9\u05d5\u05dd"
+      "description": "שעת סיום"
     },
     "break_minutes": {
       "type": "number",
       "default": 0,
-      "description": "\u05d4\u05e4\u05e1\u05e7\u05d4 \u05d1\u05d3\u05e7\u05d5\u05ea"
+      "description": "הפסקה בדקות"
     },
     "notes": {
       "type": "string",
-      "description": "\u05d4\u05e2\u05e8\u05d5\u05ea"
+      "description": "הערות"
     },
     "status": {
       "type": "string",
@@ -36,11 +36,11 @@
         "rejected"
       ],
       "default": "pending",
-      "description": "\u05e1\u05d8\u05d8\u05d5\u05e1 \u05d0\u05d9\u05e9\u05d5\u05e8"
+      "description": "סטטוס אישור"
     },
     "total_hours": {
       "type": "number",
-      "description": "\u05e1\u05d4\u05f4\u05db \u05e9\u05e2\u05d5\u05ea \u05e2\u05d1\u05d5\u05d3\u05d4"
+      "description": "סה״כ שעות עבודה"
     }
   },
   "required": [
@@ -48,5 +48,31 @@
     "date",
     "start_time",
     "end_time"
-  ]
+  ],
+  "rls": {
+    "update": {
+      "$or": [
+        {
+          "data.status": "pending"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.status": "pending"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
 }
