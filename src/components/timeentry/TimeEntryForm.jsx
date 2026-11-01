@@ -10,7 +10,7 @@ import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { useIsAdmin } from "@/lib/useIsAdmin";
 
-export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting }) {
+export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting, presetDate }) {
   const isAdmin = useIsAdmin();
   const [formData, setFormData] = React.useState({
     date: entry?.date || new Date().toISOString().split('T')[0],
@@ -22,6 +22,13 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting 
   });
 
   const [weekendWarning, setWeekendWarning] = React.useState(false);
+
+  // בחירת יום מתוך תצוגת החודש
+  React.useEffect(() => {
+    if (presetDate?.date) {
+      setFormData(prev => ({ ...prev, date: presetDate.date }));
+    }
+  }, [presetDate]);
 
   React.useEffect(() => {
     if (formData.date) {
