@@ -12,7 +12,7 @@ import { he } from "date-fns/locale";
 export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting }) {
   const [formData, setFormData] = React.useState({
     date: entry?.date || new Date().toISOString().split('T')[0],
-    start_time: entry?.start_time || "09:00",
+    start_time: entry?.start_time || "08:30",
     end_time: entry?.end_time || "17:00",
     break_minutes: entry?.break_minutes || 0,
     notes: entry?.notes || "",
