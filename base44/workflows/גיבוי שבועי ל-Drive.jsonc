@@ -1,0 +1,45 @@
+{
+  "name": "\u05d2\u05d9\u05d1\u05d5\u05d9 \u05e9\u05d1\u05d5\u05e2\u05d9 \u05dc-Drive",
+  "description": "\u05db\u05dc \u05d9\u05d5\u05dd \u05e9\u05d9\u05e9\u05d9 \u05d1-03:47 \u05e9\u05e2\u05d5\u05df \u05d9\u05e9\u05e8\u05d0\u05dc \u2014 \u05d2\u05d9\u05d1\u05d5\u05d9 \u05db\u05dc \u05d4\u05d8\u05d1\u05dc\u05d0\u05d5\u05ea \u05dc\u05e7\u05d5\u05d1\u05e5 JSON \u05d1\u05ea\u05d9\u05e7\u05d9\u05d9\u05d4 'IPS \u05d2\u05d9\u05d1\u05d5\u05d9 \u2013 \u05e9\u05e2\u05d5\u05df \u05e0\u05d5\u05db\u05d7\u05d5\u05ea' \u05d1-Google Drive (\u05e7\u05e8\u05d9\u05d0\u05d4 \u05d1\u05dc\u05d1\u05d3)",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "47 3 * * 5",
+      "one_time_date": null,
+      "timezone": "Asia/Jerusalem",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "do": [
+      {
+        "backup": {
+          "call": "invoke_backend_function",
+          "then": "end",
+          "with": {
+            "args": {},
+            "function_name": "backupToDrive"
+          },
+          "x-base44": {
+            "description": "\u05e7\u05e8\u05d9\u05d0\u05d4 \u05d1\u05dc\u05d1\u05d3: \u05db\u05dc \u05d4\u05d8\u05d1\u05dc\u05d0\u05d5\u05ea \u05dc\u05e7\u05d5\u05d1\u05e5 \u05d0\u05d7\u05d3",
+            "title": "\u05d2\u05d9\u05d1\u05d5\u05d9 \u05dc-Google Drive"
+          }
+        }
+      }
+    ],
+    "document": {
+      "dsl": "1.0.0",
+      "name": "weekly_drive_backup",
+      "namespace": "base44",
+      "version": "1.0"
+    }
+  }
+}
