@@ -1,3 +1,4 @@
+import DateInputIL from "@/components/DateInputIL";
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -61,12 +62,11 @@ export default function TimeEntryForm({ entry, onSubmit, onCancel, isSubmitting,
             <div>
               <Label className="text-slate-700 font-semibold mb-2 block">תאריך</Label>
               <div className="relative">
-                <Input
-                  type="date"
+                <DateInputIL
                   value={formData.date}
                   onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
                   required
-                  className="h-12 text-base"
+                  className="flex h-12 w-full rounded-md border border-input bg-transparent px-3 text-base shadow-sm"
                 />
                 {formData.date && (
                   <p className="text-sm text-slate-600 mt-1">
